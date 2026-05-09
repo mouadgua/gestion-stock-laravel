@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\Review;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -66,6 +67,24 @@ class ProductController extends Controller
             ->limit(4)
             ->get();
 
-        return view('products.show', compact('product', 'relatedProducts'));
+        // Get reviews for this product
+        $reviews = Review::where('product_id', $product->id_produit)
+            ->where('is_approved', true)
+            ->with('user')
+            ->orderByDesc('created_at')
+            ->get();
+
+        // Calculate average rating
+        $averageRating = $reviews->avg('rating') ?? 0;
+
+        // Check if current user has already reviewed
+        $hasReviewed = false;
+        if (auth()->check()) {
+            $hasReviewed = Review::where('product_id', $product->id_produit)
+                ->where('user_id', auth()->id())
+                ->exists();
+        }
+
+        return view('products.show', compact('product', 'relatedProducts', 'reviews', 'averageRating', 'hasReviewed'));
     }
 }

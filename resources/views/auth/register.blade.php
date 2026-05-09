@@ -60,11 +60,34 @@
                 @enderror
             </div>
 
+            <!-- Role Selection -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-3">Type de compte</label>
+                <div class="grid grid-cols-2 gap-4">
+                    <label class="relative flex items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-primary-500 transition">
+                        <input type="radio" name="role" value="acheteur" {{ old('role', 'acheteur') == 'acheteur' ? 'checked' : '' }}
+                            class="w-4 h-4 text-primary-600 border-gray-300 focus:ring-primary-500">
+                        <div class="ml-3">
+                            <span class="block font-medium text-gray-900">Acheteur</span>
+                            <span class="block text-sm text-gray-500">Acheter des produits</span>
+                        </div>
+                    </label>
+                    <label class="relative flex items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-primary-500 transition">
+                        <input type="radio" name="role" value="livreur" {{ old('role') == 'livreur' ? 'checked' : '' }}
+                            class="w-4 h-4 text-primary-600 border-gray-300 focus:ring-primary-500">
+                        <div class="ml-3">
+                            <span class="block font-medium text-gray-900">Livreur</span>
+                            <span class="block text-sm text-gray-500">Livrer des commandes</span>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
             <!-- Confirm Password -->
             <div class="mb-6">
                 <label for="password_confirmation" class="block text-sm font-medium text-gray-700 mb-2">Confirmer le mot de passe</label>
                 <input type="password" name="password_confirmation" id="password_confirmation" required
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent">
             </div>
 
             <button type="submit" class="w-full btn-primary text-white py-3 rounded-lg font-semibold">

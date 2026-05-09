@@ -13,8 +13,7 @@ class HomeController extends Controller
      */
     public function index()
     {
-        $featuredProducts = Product::where('est_actif', true)
-            ->where('stock', '>', 0)
+        $recentProducts = Product::where('est_actif', true)
             ->with('categorie')
             ->orderByDesc('created_at')
             ->limit(8)
@@ -22,6 +21,6 @@ class HomeController extends Controller
 
         $categories = Category::withCount('products')->get();
 
-        return view('home', compact('featuredProducts', 'categories'));
+        return view('home', compact('recentProducts', 'categories'));
     }
 }

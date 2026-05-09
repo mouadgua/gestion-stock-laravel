@@ -9,9 +9,11 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\Client\OrderController as ClientOrderController;
+use App\Http\Controllers\DeliveryController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\WishlistController;
 use Illuminate\Support\Facades\Route;
 
@@ -76,6 +78,18 @@ Route::middleware('auth')->group(function () {
         Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
         Route::post('/wishlist/{product}', [WishlistController::class, 'add'])->name('wishlist.add');
         Route::delete('/wishlist/{product}', [WishlistController::class, 'remove'])->name('wishlist.remove');
+
+        // Reviews
+        Route::post('/reviews/{product}', [ReviewController::class, 'store'])->name('reviews.store');
+    });
+
+    // Delivery routes (for livreur role)
+    Route::middleware('livreur')->prefix('delivery')->name('delivery.')->group(function () {
+        Route::get('/dashboard', [DeliveryController::class, 'dashboard'])->name('dashboard');
+        Route::get('/scan', [DeliveryController::class, 'scan'])->name('scan');
+        Route::post('/scan', [DeliveryController::class, 'processScan'])->name('scan.process');
+        Route::get('/history', [DeliveryController::class, 'history'])->name('history');
+        Route::post('/deliveries/{delivery}/status', [DeliveryController::class, 'updateStatus'])->name('update-status');
     });
 
     // Admin routes

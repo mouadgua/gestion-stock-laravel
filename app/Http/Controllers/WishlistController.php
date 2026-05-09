@@ -15,7 +15,12 @@ class WishlistController extends Controller
     public function index(Request $request): View
     {
         $user = $request->user();
-        $wishlistItems = $user->wishlistProducts()->with('categorie')->get();
+        $wishlistItems = $user->wishlistProducts()
+            ->with(['categorie', 'reviews'])
+            ->get()
+            ->filter(function($product) {
+                return $product !== null;
+            });
 
         return view('client.wishlist.index', compact('wishlistItems'));
     }
@@ -28,7 +33,7 @@ class WishlistController extends Controller
         $user = $request->user();
 
         // Check if already in wishlist
-        if ($user->wishlistProducts()->where('id_produit', $product->id_produit)->exists()) {
+        if ($user->wishlistProducts()->where('products.id_produit', $product->id_produit)->exists()) {
             return redirect()->back()
                 ->with('info', 'Ce produit est déjà dans votre liste de souhaits.');
         }

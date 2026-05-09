@@ -51,6 +51,18 @@ class Product extends Model
         return $this->belongsToMany(User::class, 'wishlists', 'id_produit', 'user_id');
     }
 
+    public function reviews()
+    {
+        return $this->hasMany(Review::class, 'product_id', 'id_produit');
+    }
+
+    public function averageRating(): float
+    {
+        return $this->reviews()
+            ->where('is_approved', true)
+            ->avg('rating') ?? 0;
+    }
+
     public function isAvailable(): bool
     {
         return $this->stock > 0 && $this->est_actif;

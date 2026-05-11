@@ -35,7 +35,7 @@
                                     Commande #{{ $delivery->order->id_commande }}
                                 </div>
                                 <div class="text-sm text-gray-500">
-                                    {{ $delivery->order->total }} €
+                                    {{ $delivery->order->total }} DH
                                 </div>
                             </td>
                             <td class="px-6 py-4">

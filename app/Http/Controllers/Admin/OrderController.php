@@ -13,11 +13,32 @@ class OrderController extends Controller
     /**
      * Display a listing of the orders.
      */
-    public function index(): View
+    public function index(Request $request): View
     {
-        $orders = Order::with('user', 'items.product')
-            ->orderByDesc('created_at')
-            ->paginate(15);
+        $query = Order::with('user', 'items.product');
+
+        // Filter by search (order ID, user name, user email)
+        if ($search = $request->input('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('id_commande', 'like', "%{$search}%")
+                  ->orWhereHas('user', function ($q) use ($search) {
+                      $q->where('name', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        // Filter by status
+        if ($status = $request->input('status')) {
+            $query->where('statut', $status);
+        }
+
+        // Filter by date
+        if ($date = $request->input('date')) {
+            $query->whereDate('date_commande', $date);
+        }
+
+        $orders = $query->orderByDesc('created_at')->paginate(15);
 
         return view('admin.orders.index', compact('orders'));
     }

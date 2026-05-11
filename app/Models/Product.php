@@ -25,6 +25,17 @@ class Product extends Model
         'categorie_id',
     ];
 
+    public function images()
+    {
+        return $this->hasMany(ProductImage::class, 'product_id', 'id_produit')->orderBy('ordre');
+    }
+
+    public function getFirstImageAttribute(): ?string
+    {
+        $first = $this->images->first();
+        return $first?->url ?? $this->image;
+    }
+
     protected $casts = [
         'prix' => 'decimal:2',
         'stock' => 'integer',

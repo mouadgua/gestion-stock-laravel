@@ -1,86 +1,101 @@
 @extends('layouts.app')
 
-@section('title', 'Gestion des Catégories - Admin')
+@section('title', 'Gestion des Catégories - Admin - The Vault')
 
 @section('content')
-<div class="mb-6 flex justify-between items-center">
-    <div>
-        <h1 class="text-3xl font-bold text-gray-900">Gestion des Catégories</h1>
-        <p class="text-gray-500 mt-1">Organisez vos produits par catégories</p>
+<div class="mb-12 gsap-fade-up">
+    <span class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 block">Administration</span>
+    <div class="flex flex-col lg:flex-row lg:items-end justify-between border-b-4 border-slate-900 pb-6 gap-6">
+        <h1 class="text-5xl md:text-7xl font-black text-slate-900 tracking-tighter uppercase leading-none">
+            Catégories.
+        </h1>
+        <button onclick="openModal()" class="bg-slate-900 text-white font-black uppercase tracking-widest px-8 py-4 hover:bg-slate-800 transition-colors inline-flex items-center justify-center gap-2 text-xs shrink-0">
+            <i class="fas fa-plus"></i> Nouvelle Catégorie
+        </button>
     </div>
-    <button onclick="openModal()" class="btn-primary text-white px-6 py-3 rounded-lg font-semibold shadow-lg">
-        + Nouvelle catégorie
-    </button>
 </div>
 
 @if(session('success'))
-    <div class="bg-gradient-to-r from-green-50 to-emerald-50 border-l-4 border-green-500 text-green-700 px-6 py-4 rounded-lg mb-6 shadow-sm">
-        {{ session('success') }}
+    <div class="bg-emerald-500 text-white px-6 py-4 mb-8 text-xs font-black uppercase tracking-widest flex items-center gap-3 gsap-fade-up">
+        <i class="fas fa-check-square"></i> {{ session('success') }}
     </div>
 @endif
 
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
     @forelse($categories as $category)
-        <div class="bg-white rounded-2xl shadow-soft p-6 card-hover">
-            <div class="flex justify-between items-start mb-4">
-                <div class="w-12 h-12 rounded-xl bg-gradient-to-r from-primary-100 to-indigo-100 flex items-center justify-center">
-                    <svg class="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
-                    </svg>
+        <div class="bg-slate-50 border-2 border-slate-200 p-8 hover:border-slate-900 transition-colors flex flex-col h-full gsap-card group">
+            
+            <div class="flex justify-between items-start mb-8">
+                <div class="w-14 h-14 bg-slate-900 text-white flex items-center justify-center text-2xl font-black shrink-0 group-hover:scale-110 transition-transform">
+                    {{ substr($category->nom_categorie, 0, 1) }}
                 </div>
-                <div class="flex gap-2">
-                    <button onclick="editCategory({{ $category->id }}, '{{ $category->nom_categorie }}')" class="text-primary-600 hover:text-primary-700 p-2 rounded-lg hover:bg-primary-50 transition">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 012.828 0L11.828 15H9a2 2 0 01-2-2V7a2 2 0 012-2z"/>
-                        </svg>
+                
+                <div class="flex items-center gap-4 border-b-2 border-transparent group-hover:border-slate-200 pb-2 transition-all">
+                    <button onclick="editCategory({{ $category->id }}, '{{ addslashes($category->nom_categorie) }}')" class="text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-purple-600 transition-colors">
+                        Éditer
                     </button>
-                    <form action="{{ route('admin.categories.destroy', $category) }}" method="POST" class="inline" onsubmit="return confirm('Supprimer cette catégorie ?');">
+                    <form action="{{ route('admin.categories.destroy', $category) }}" method="POST" class="inline" onsubmit="return confirm('Détruire cette catégorie ? Attention, cela pourrait impacter les objets liés.');">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="text-red-600 hover:text-red-700 p-2 rounded-lg hover:bg-red-50 transition">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                            </svg>
+                        <button type="submit" class="text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-red-600 transition-colors">
+                            Retirer
                         </button>
                     </form>
                 </div>
             </div>
-            <h3 class="text-lg font-bold text-gray-900 mb-2">{{ $category->nom_categorie }}</h3>
-            <p class="text-sm text-gray-500 mb-4">{{ $category->produits_count ?? 0 }} produits</p>
-            <a href="{{ route('products.index') }}?category={{ $category->id }}" class="text-primary-600 hover:text-primary-700 text-sm font-medium flex items-center gap-1">
-                Voir les produits
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                </svg>
-            </a>
+
+            <div class="flex-1">
+                <h3 class="text-2xl font-black text-slate-900 uppercase tracking-tight mb-2 leading-tight">
+                    {{ $category->nom_categorie }}
+                </h3>
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-6">
+                    <span class="text-slate-900">{{ $category->produits_count ?? 0 }}</span> objets liés
+                </p>
+            </div>
+
+            <div class="mt-4 pt-6 border-t-2 border-slate-200 group-hover:border-slate-900 transition-colors">
+                <a href="{{ route('products.index') }}?category={{ $category->id }}" class="inline-flex items-center justify-between w-full text-xs font-black uppercase tracking-widest text-slate-900 hover:text-slate-500 transition-colors">
+                    Explorer les objets <i class="fas fa-arrow-right group-hover:translate-x-2 transition-transform"></i>
+                </a>
+            </div>
         </div>
     @empty
-        <div class="col-span-full text-center py-16">
-            <svg class="mx-auto h-16 w-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
-            </svg>
-            <h3 class="mt-4 text-lg font-medium text-gray-900">Aucune catégorie</h3>
-            <p class="mt-2 text-gray-500">Commencez par créer votre première catégorie.</p>
+        <div class="col-span-full border-2 border-slate-200 border-dashed p-16 md:p-32 text-center gsap-fade-up">
+            <i class="fas fa-folder-open text-4xl text-slate-300 mb-4"></i>
+            <h3 class="text-3xl font-black text-slate-900 uppercase tracking-tight mb-2">Classement vide</h3>
+            <p class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-6">Commencez par créer votre première catégorie.</p>
+            <button onclick="openModal()" class="bg-slate-900 text-white font-black uppercase tracking-widest px-8 py-4 hover:bg-slate-800 transition-colors text-xs inline-flex items-center gap-2">
+                <i class="fas fa-plus"></i> Créer une catégorie
+            </button>
         </div>
     @endforelse
 </div>
 
-<!-- Modal for creating/editing category -->
-<div id="categoryModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-    <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4">
-        <h2 id="modalTitle" class="text-2xl font-bold text-gray-900 mb-6">Nouvelle catégorie</h2>
-        <form id="categoryForm" method="POST">
+<div id="categoryModal" class="fixed inset-0 bg-slate-900/90 backdrop-blur-sm hidden items-center justify-center z-50 px-4">
+    <div class="bg-white border-4 border-slate-900 max-w-lg w-full p-8 md:p-12 shadow-2xl relative transform transition-all">
+        
+        <button onclick="closeModal()" class="absolute top-6 right-6 text-slate-400 hover:text-slate-900 transition-colors">
+            <i class="fas fa-times text-2xl"></i>
+        </button>
+
+        <h2 id="modalTitle" class="text-3xl font-black text-slate-900 uppercase tracking-tighter mb-8 border-b-4 border-slate-900 pb-4">
+            Nouvelle catégorie
+        </h2>
+        
+        <form id="categoryForm" method="POST" class="space-y-8">
             @csrf
-            <div class="mb-6">
-                <label for="nom_categorie" class="block text-sm font-medium text-gray-700 mb-2">Nom de la catégorie</label>
+            <div>
+                <label for="nom_categorie" class="block text-xs font-bold text-slate-900 uppercase tracking-widest mb-3">Désignation de la catégorie</label>
                 <input type="text" name="nom_categorie" id="nom_categorie" required
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                    class="w-full px-5 py-4 bg-slate-50 border-2 border-slate-300 focus:border-purple-600 focus:bg-white focus:ring-0 text-slate-900 font-bold transition-colors text-lg uppercase placeholder:normal-case placeholder:text-slate-400"
+                    placeholder="Ex: Montres">
             </div>
-            <div class="flex gap-4">
-                <button type="submit" class="flex-1 btn-primary text-white py-3 px-6 rounded-lg font-semibold">
-                    Enregistrer
+            
+            <div class="flex flex-col sm:flex-row gap-4 pt-4 border-t-2 border-slate-200">
+                <button type="submit" class="flex-1 bg-slate-900 text-white py-4 font-black uppercase tracking-widest hover:bg-slate-800 transition-colors text-sm">
+                    Sauvegarder
                 </button>
-                <button type="button" onclick="closeModal()" class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium">
+                <button type="button" onclick="closeModal()" class="px-8 py-4 border-2 border-slate-300 text-slate-900 font-bold uppercase tracking-widest hover:bg-slate-50 transition-colors text-sm">
                     Annuler
                 </button>
             </div>
@@ -88,7 +103,9 @@
     </div>
 </div>
 
+@push('scripts')
 <script>
+// Logique Laravel conservée
 function openModal() {
     document.getElementById('categoryModal').classList.remove('hidden');
     document.getElementById('categoryModal').classList.add('flex');
@@ -100,7 +117,7 @@ function openModal() {
 function editCategory(id, name) {
     document.getElementById('categoryModal').classList.remove('hidden');
     document.getElementById('categoryModal').classList.add('flex');
-    document.getElementById('modalTitle').textContent = 'Modifier la catégorie';
+    document.getElementById('modalTitle').textContent = 'Modifier la classe';
     document.getElementById('categoryForm').action = `/admin/categories/${id}`;
     document.getElementById('nom_categorie').value = name;
 }
@@ -110,11 +127,18 @@ function closeModal() {
     document.getElementById('categoryModal').classList.remove('flex');
 }
 
-// Close modal when clicking outside
+// Fermer la modale si on clique à l'extérieur
 document.getElementById('categoryModal').addEventListener('click', function(e) {
     if (e.target === this) {
         closeModal();
     }
 });
+
+// Animations GSAP
+document.addEventListener("DOMContentLoaded", () => {
+    gsap.fromTo(".gsap-fade-up", { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8, stagger: 0.1, ease: "power3.out" });
+    gsap.fromTo(".gsap-card", { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, stagger: 0.05, ease: "power2.out", delay: 0.2 });
+});
 </script>
+@endpush
 @endsection

@@ -135,16 +135,56 @@ class CartController extends Controller
     }
 
     /**
+     * Show the checkout page with payment selection.
+     */
+    public function checkoutPage(Request $request): View|RedirectResponse
+    {
+        $cart = $request->session()->get('cart', []);
+        $products = [];
+        $total = 0;
+
+        foreach ($cart as $productId => $quantity) {
+            $product = Product::with('categorie')->find($productId);
+            if ($product && $product->isAvailable()) {
+                $subtotal = $product->prix * $quantity;
+                $products[] = [
+                    'product' => $product,
+                    'quantity' => $quantity,
+                    'subtotal' => $subtotal,
+                ];
+                $total += $subtotal;
+            }
+        }
+
+        if (empty($products)) {
+            return redirect()->route('client.cart.index')
+                ->with('error', 'Votre panier est vide.');
+        }
+
+        return view('client.cart.checkout', [
+            'items' => $products,
+            'total' => $total,
+        ]);
+    }
+
+    /**
      * Process checkout and create order.
      */
     public function checkout(Request $request): RedirectResponse
     {
         $user = $request->user();
         $cart = $request->session()->get('cart', []);
+        $modePaiement = $request->input('mode_paiement', 'cod');
 
         if (empty($cart)) {
             return redirect()->route('client.cart.index')
                 ->with('error', 'Votre panier est vide.');
+        }
+
+        // Validate payment mode
+        if (!in_array($modePaiement, ['paypal', 'cod'])) {
+            return redirect()->route('client.cart.index')
+                ->with('error', 'Mode de paiement invalide.');
         }
 
         // Validate user has address
@@ -172,6 +212,8 @@ class CartController extends Controller
                 'adresse_livraison' => $user->adresse,
                 'telephone_livraison' => $user->telephone,
                 'statut' => 'en_attente',
+                'mode_paiement' => $modePaiement,
+                'statut_paiement' => $modePaiement === 'cod' ? 'en_attente' : 'en_attente',
             ]);
 
             OrderObserver::createOrderWithItems($order, $items);
@@ -179,8 +221,15 @@ class CartController extends Controller
             // Clear cart
             $request->session()->forget('cart');
 
+            // If PayPal, redirect to payment processing
+            if ($modePaiement === 'paypal') {
+                return redirect()->route('paypal.process', $order)
+                    ->with('info', 'Redirection vers PayPal pour le paiement...');
+            }
+
+            // If COD, order is created successfully
             return redirect()->route('client.orders.show', $order)
-                ->with('success', 'Commande créée avec succès!');
+                ->with('success', 'Commande créée avec succès! Vous paierez à la livraison.');
 
         } catch (Exception $e) {
             return redirect()->back()

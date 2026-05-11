@@ -4,6 +4,9 @@ namespace App\Providers;
 
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\User;
+use App\Models\Category;
+use App\Observers\ActivityLogObserver;
 use App\Observers\OrderObserver;
 use App\Observers\ProductObserver;
 use Illuminate\Support\ServiceProvider;
@@ -27,6 +30,8 @@ class AppServiceProvider extends ServiceProvider
         // Register observers
         Product::observe(ProductObserver::class);
         Order::observe(OrderObserver::class);
+        User::observe(ActivityLogObserver::class);
+        Category::observe(ActivityLogObserver::class);
         Schema::defaultStringLength(191);
     }
 }

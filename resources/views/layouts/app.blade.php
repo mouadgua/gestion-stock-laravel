@@ -3,340 +3,400 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Boutique Virtuelle')</title>
+    <title>@yield('title', 'The Vault')</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    },
-                    colors: {
-                        primary: {
-                            50: '#f0f9ff',
-                            100: '#e0f2fe',
-                            200: '#bae6fd',
-                            300: '#7dd3fc',
-                            400: '#38bdf8',
-                            500: '#0ea5e9',
-                            600: '#0284c7',
-                            700: '#0369a1',
-                            800: '#075985',
-                            900: '#0c4a6e',
-                        },
-                        accent: {
-                            50: '#fdf4ff',
-                            100: '#fae8ff',
-                            200: '#f5d0fe',
-                            300: '#f0abfc',
-                            400: '#e879f9',
-                            500: '#d946ef',
-                            600: '#c026d3',
-                            700: '#a21caf',
-                            800: '#86198f',
-                            900: '#701a75',
-                        }
-                    },
-                    boxShadow: {
-                        'soft': '0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04)',
-                        'soft-lg': '0 10px 40px -10px rgba(0, 0, 0, 0.08)',
-                    }
-                }
-            }
-        }
-    </script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
     <style>
-        body { font-family: 'Inter', sans-serif; }
-        .gradient-primary {
-            background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%);
+        body { font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
+
+        /* Custom Scrollbar minimaliste */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f8fafc; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        @media print {
+            #global-nav, aside, footer, #chatWidget, .no-print { display: none !important; }
+            body { background: white !important; }
         }
-        .gradient-accent {
-            background: linear-gradient(135deg, #d946ef 0%, #8b5cf6 100%);
-        }
-        .btn-primary {
-            background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px -5px rgba(14, 165, 233, 0.4);
-        }
-        .card-hover {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .card-hover:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.1);
-        }
-        .glass-effect {
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(10px);
-        }
-        .animate-fade-in {
-            animation: fadeIn 0.5s ease-out;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        
+        /* Prévention du scroll quand menu mobile ouvert */
+        .no-scroll { overflow: hidden; }
     </style>
 </head>
-<body class="bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 min-h-screen flex flex-col">
-    <!-- Navigation -->
-    <nav class="glass-effect shadow-sm sticky top-0 z-50 border-b border-gray-100">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-20">
-                <!-- Logo -->
-                <a href="/" class="flex items-center space-x-2 group">
-                    <div class="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center">
-                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
-                        </svg>
-                    </div>
-                    <span class="text-2xl font-bold bg-gradient-to-r from-primary-600 to-indigo-600 bg-clip-text text-transparent">
-                        Boutique
-                    </span>
-                </a>
+<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col overflow-x-hidden relative">
 
-                <!-- Navigation Links -->
-                <div class="flex items-center space-x-8">
-                    <a href="{{ route('products.index') }}" class="text-gray-600 hover:text-primary-600 font-medium transition relative group">
-                        Produits
-                        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-primary-500 to-indigo-500 group-hover:w-full transition-all duration-300"></span>
+    <header id="global-nav" class="sticky top-0 z-50 bg-slate-950 text-white border-b-2 border-emerald-400 transition-transform duration-500">
+        <div class="max-w-[1600px] mx-auto px-4 lg:px-8">
+            <div class="flex lg:grid lg:grid-cols-3 items-center justify-between h-20">
+                
+                <div class="hidden lg:flex items-center gap-8 justify-start">
+                    <a href="{{ route('products.index') }}" class="text-xs font-bold uppercase tracking-widest hover:text-emerald-400 transition-colors">
+                        Catalogue
                     </a>
-
+                    
                     @auth
+                        @if(auth()->user()->isAdmin())
+                            <a href="{{ route('admin.dashboard') }}" class="text-xs font-bold uppercase tracking-widest hover:text-purple-400 transition-colors">
+                                Dashboard Admin
+                            </a>
+                        @endif
                         @if(auth()->user()->isClient())
-                            <a href="{{ route('seller.products.index') }}" class="text-gray-600 hover:text-primary-600 font-medium transition relative group">
-                                Vendre
-                                <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-primary-500 to-indigo-500 group-hover:w-full transition-all duration-300"></span>
+                            <a href="{{ route('client.profile') }}" class="text-xs font-bold uppercase tracking-widest hover:text-blue-400 transition-colors">
+                                Mon Espace
                             </a>
                         @endif
+                    @endauth
+                </div>
 
-                        @if(!auth()->user()->isAdmin())
-                            <!-- Cart -->
-                            <a href="{{ route('client.cart.index') }}" class="relative p-2 text-gray-600 hover:text-primary-600 transition">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-1.638 1.638-2.517 3.71-2.293 5.708.206 1.83.987 3.327 2.293 4.126A4.904 4.904 0 0012 22a4.904 4.904 0 004.293-2.462c1.306-.799 2.087-2.296 2.293-4.126.224-1.998-.655-4.07-2.293-5.708L17 13"/>
-                                </svg>
-                                @if(session('cart'))
-                                    <span class="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs rounded-full flex items-center justify-center font-bold shadow-lg">
-                                        {{ count(session('cart')) }}
-                                    </span>
-                                @endif
-                            </a>
+                <div class="flex justify-center z-50">
+                    <a href="/" class="text-3xl font-black uppercase tracking-tighter flex items-center gap-2 group">
+                        <i class="fas fa-vault text-emerald-400 group-hover:rotate-12 transition-transform"></i> 
+                        THE VAULT.
+                    </a>
+                </div>
 
-                            <!-- Wishlist -->
-                            <a href="{{ route('client.wishlist.index') }}" class="relative p-2 text-gray-600 hover:text-primary-600 transition">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
-                                </svg>
-                            </a>
+                <div class="hidden lg:flex items-center gap-8 justify-end">
+                    @auth
+                        @if(auth()->user()->isClient() && !auth()->user()->isAdmin())
+                            <div class="flex items-center gap-5">
+                                <a href="{{ route('client.wishlist.index') }}" class="text-lg text-slate-400 hover:text-rose-500 transition-colors">
+                                    <i class="fas fa-heart"></i>
+                                </a>
+                                <a href="{{ route('client.cart.index') }}" class="relative text-lg text-slate-400 hover:text-emerald-400 transition-colors">
+                                    <i class="fas fa-shopping-cart"></i>
+                                    @if(session('cart'))
+                                        <span class="absolute -top-2 -right-2 w-4 h-4 bg-emerald-500 rounded-full text-slate-950 text-[9px] flex items-center justify-center font-black">{{ count(session('cart')) }}</span>
+                                    @endif
+                                </a>
+                            </div>
                         @endif
-
-                        <!-- User Menu -->
-                        <div class="flex items-center space-x-4">
-                            <a href="{{ route('profile.edit') }}" class="flex items-center space-x-2 text-gray-700 hover:text-primary-600 transition">
-                                <div class="w-8 h-8 rounded-full bg-gradient-to-r from-primary-400 to-indigo-400 flex items-center justify-center text-white font-bold text-sm">
+                        
+                        <div class="flex items-center gap-6 pl-6 border-l border-slate-800">
+                            <a href="{{ route('profile.edit') }}" class="flex items-center gap-3 text-slate-300 hover:text-white transition-colors group">
+                                <div class="w-8 h-8 bg-slate-800 flex items-center justify-center text-xs font-black uppercase group-hover:bg-white group-hover:text-slate-950 transition-colors">
                                     {{ substr(auth()->user()->name, 0, 1) }}
                                 </div>
-                                <span class="font-medium">{{ auth()->user()->name }}</span>
+                                <span class="text-xs font-bold uppercase tracking-widest">{{ auth()->user()->name }}</span>
                             </a>
-
-                            @if(auth()->user()->isAdmin())
-                                <a href="{{ route('admin.dashboard') }}" class="px-4 py-2 bg-gradient-to-r from-primary-500 to-indigo-500 text-white rounded-lg font-medium hover:shadow-lg transition">
-                                    Admin
-                                </a>
-                            @endif
-
-                            <form method="POST" action="{{ route('logout') }}" class="inline">
+                            
+                            <form method="POST" action="{{ route('logout') }}">
                                 @csrf
-                                <button type="submit" class="px-4 py-2 text-gray-600 hover:text-red-600 font-medium transition">
-                                    Déconnexion
+                                <button type="submit" class="text-slate-500 hover:text-rose-500 transition-colors" title="Déconnexion">
+                                    <i class="fas fa-sign-out-alt"></i>
                                 </button>
                             </form>
                         </div>
                     @else
-                        <div class="flex items-center space-x-4">
-                            <a href="{{ route('login') }}" class="text-gray-600 hover:text-primary-600 font-medium transition">
-                                Connexion
-                            </a>
-                            <a href="{{ route('register') }}" class="btn-primary text-white px-6 py-2.5 rounded-lg font-semibold">
-                                Inscription
-                            </a>
-                        </div>
+                        <a href="{{ route('login') }}" class="text-xs font-bold uppercase tracking-widest hover:text-emerald-400 transition-colors">
+                            Connexion
+                        </a>
+                        <a href="{{ route('register') }}" class="bg-white text-slate-950 text-xs font-black uppercase tracking-widest px-6 py-3 hover:bg-emerald-400 transition-colors">
+                            S'inscrire
+                        </a>
                     @endauth
+                </div>
+
+                <div class="lg:hidden flex items-center gap-4 z-50">
+                    @if(auth()->check() && auth()->user()->isClient() && !auth()->user()->isAdmin())
+                        <a href="{{ route('client.cart.index') }}" class="relative text-lg text-white">
+                            <i class="fas fa-shopping-cart"></i>
+                            @if(session('cart'))
+                                <span class="absolute -top-2 -right-2 w-4 h-4 bg-emerald-500 rounded-full text-slate-950 text-[9px] flex items-center justify-center font-black">{{ count(session('cart')) }}</span>
+                            @endif
+                        </a>
+                    @endif
+                    <button id="mobileNavToggle" class="text-2xl text-white focus:outline-none">
+                        <i class="fas fa-bars"></i>
+                    </button>
                 </div>
             </div>
         </div>
-    </nav>
+    </header>
 
-    <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fade-in flex-1">
-        @if(session('success'))
-            <div class="bg-gradient-to-r from-green-50 to-emerald-50 border-l-4 border-green-500 text-green-700 px-6 py-4 rounded-lg mb-6 shadow-sm">
-                <div class="flex items-center">
-                    <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                    </svg>
-                    {{ session('success') }}
-                </div>
-            </div>
-        @endif
+    <div id="mobileNavOverlay" class="fixed inset-0 bg-slate-950 z-[45] flex flex-col pt-24 px-6 pb-8 transform translate-x-full transition-transform duration-500 ease-in-out">
+        <nav class="flex flex-col gap-6 text-center mt-10">
+            <a href="{{ route('products.index') }}" class="text-2xl font-black uppercase tracking-widest text-white hover:text-emerald-400">Catalogue</a>
+            
+            @auth
+                @if(auth()->user()->isAdmin())
+                    <a href="{{ route('admin.dashboard') }}" class="text-2xl font-black uppercase tracking-widest text-white hover:text-purple-400">Dashboard</a>
+                @endif
+                @if(auth()->user()->isClient())
+                    <a href="{{ route('client.profile') }}" class="text-2xl font-black uppercase tracking-widest text-white hover:text-blue-400">Mon Espace</a>
+                    <a href="{{ route('client.wishlist.index') }}" class="text-2xl font-black uppercase tracking-widest text-white hover:text-rose-400">Mes Favoris</a>
+                @endif
+                <div class="h-px w-16 bg-slate-800 mx-auto my-4"></div>
+                <a href="{{ route('profile.edit') }}" class="text-sm font-bold uppercase tracking-widest text-slate-400">Paramètres</a>
+                <form method="POST" action="{{ route('logout') }}" class="mt-4">
+                    @csrf
+                    <button type="submit" class="text-sm font-bold uppercase tracking-widest text-rose-500">Déconnexion</button>
+                </form>
+            @else
+                <div class="h-px w-16 bg-slate-800 mx-auto my-4"></div>
+                <a href="{{ route('login') }}" class="text-xl font-bold uppercase tracking-widest text-white">Connexion</a>
+                <a href="{{ route('register') }}" class="mt-4 bg-emerald-400 text-slate-950 text-xl font-black uppercase tracking-widest px-8 py-4 inline-block mx-auto">S'inscrire</a>
+            @endauth
+        </nav>
+    </div>
 
-        @if(session('error'))
-            <div class="bg-gradient-to-r from-red-50 to-pink-50 border-l-4 border-red-500 text-red-700 px-6 py-4 rounded-lg mb-6 shadow-sm">
-                <div class="flex items-center">
-                    <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 001 1h1a1 1 0 100-2h-1V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                    </svg>
-                    {{ session('error') }}
-                </div>
-            </div>
-        @endif
+    @if(auth()->check() && auth()->user()->isAdmin() && !request()->routeIs('products.*') && !request()->routeIs('home') && !request()->routeIs('profile.*'))
+    <div class="flex flex-1 pt-6 px-4 lg:px-8 gap-6 max-w-[1600px] mx-auto w-full">
+        <aside class="hidden lg:flex flex-col w-64 shrink-0 bg-white border-2 border-slate-200 shadow-xl p-6 gap-2 sticky top-28 h-[calc(100vh-8rem)] overflow-y-auto z-40">
+            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 border-b-2 border-slate-100 pb-2">Administration</p>
+            
+            <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 px-4 py-3 text-xs font-black uppercase tracking-widest transition-all {{ request()->routeIs('admin.dashboard') ? 'bg-slate-900 text-white' : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900' }}">
+                <i class="fas fa-home w-5 text-center"></i> Accueil
+            </a>
+            <a href="{{ route('admin.products.index') }}" class="flex items-center gap-3 px-4 py-3 text-xs font-black uppercase tracking-widest transition-all {{ request()->routeIs('admin.products.*') ? 'bg-blue-600 text-white' : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900' }}">
+                <i class="fas fa-cubes w-5 text-center"></i> Produits
+            </a>
+            <a href="{{ route('admin.categories.index') }}" class="flex items-center gap-3 px-4 py-3 text-xs font-black uppercase tracking-widest transition-all {{ request()->routeIs('admin.categories.*') ? 'bg-emerald-600 text-white' : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900' }}">
+                <i class="fas fa-folder w-5 text-center"></i> Catégories
+            </a>
+            <a href="{{ route('admin.orders.index') }}" class="flex items-center gap-3 px-4 py-3 text-xs font-black uppercase tracking-widest transition-all {{ request()->routeIs('admin.orders.*') ? 'bg-purple-600 text-white' : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900' }}">
+                <i class="fas fa-truck w-5 text-center"></i> Commandes
+            </a>
+            <a href="{{ route('admin.users.index') }}" class="flex items-center gap-3 px-4 py-3 text-xs font-black uppercase tracking-widest transition-all {{ request()->routeIs('admin.users.*') ? 'bg-slate-900 text-white' : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900' }}">
+                <i class="fas fa-users w-5 text-center"></i> Utilisateurs
+            </a>
+            <a href="{{ route('admin.activity-logs.index') }}" class="flex items-center gap-3 px-4 py-3 text-xs font-black uppercase tracking-widest transition-all {{ request()->routeIs('admin.activity-logs.*') ? 'bg-slate-900 text-white' : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900' }}">
+                <i class="fas fa-history w-5 text-center"></i> Activités
+            </a>
+        </aside>
 
-        @yield('content')
-    </main>
+        <button onclick="toggleAdminSidebar()" class="lg:hidden fixed bottom-6 left-6 z-50 w-14 h-14 bg-slate-900 text-white rounded-none flex items-center justify-center shadow-xl hover:bg-slate-800 transition-colors">
+            <i class="fas fa-layer-group text-xl"></i>
+        </button>
 
-    <!-- Footer -->
-    <footer class="bg-white border-t border-gray-100 mt-16">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-                <div class="col-span-1 md:col-span-2">
-                    <div class="flex items-center space-x-2 mb-4">
-                        <div class="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center">
-                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
-                            </svg>
-                        </div>
-                        <span class="text-xl font-bold bg-gradient-to-r from-primary-600 to-indigo-600 bg-clip-text text-transparent">
-                            Boutique Virtuelle
-                        </span>
-                    </div>
-                    <p class="text-gray-500 text-sm leading-relaxed max-w-md">
-                        Découvrez notre sélection de produits de qualité. Livraison rapide et service client exceptionnel.
-                    </p>
+        <aside id="mobileAdminSidebar" class="hidden fixed inset-0 z-[60] lg:hidden">
+            <div class="absolute inset-0 bg-slate-900/80 backdrop-blur-sm" onclick="toggleAdminSidebar()"></div>
+            <div class="absolute top-0 left-0 bottom-0 w-72 bg-white p-6 flex flex-col gap-2 overflow-y-auto transform transition-transform">
+                <div class="flex items-center justify-between mb-8 pb-4 border-b-4 border-slate-900">
+                    <span class="font-black text-xl text-slate-900 uppercase tracking-tighter">Admin.</span>
+                    <button onclick="toggleAdminSidebar()" class="text-slate-500 text-xl"><i class="fas fa-times"></i></button>
                 </div>
-                <div>
-                    <h4 class="font-semibold text-gray-900 mb-4">Liens Rapides</h4>
-                    <ul class="space-y-2 text-sm text-gray-500">
-                        <li><a href="{{ route('home') }}" class="hover:text-primary-600 transition">Accueil</a></li>
-                        <li><a href="{{ route('products.index') }}" class="hover:text-primary-600 transition">Produits</a></li>
-                        <li><a href="#" class="hover:text-primary-600 transition">À propos</a></li>
-                        <li><a href="#" class="hover:text-primary-600 transition">Contact</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="font-semibold text-gray-900 mb-4">Support</h4>
-                    <ul class="space-y-2 text-sm text-gray-500">
-                        <li><a href="#" class="hover:text-primary-600 transition">FAQ</a></li>
-                        <li><a href="#" class="hover:text-primary-600 transition">Livraison</a></li>
-                        <li><a href="#" class="hover:text-primary-600 transition">Retours</a></li>
-                        <li><a href="#" class="hover:text-primary-600 transition">Conditions</a></li>
-                    </ul>
-                </div>
+                <a href="{{ route('admin.dashboard') }}" class="px-4 py-3 text-xs font-black uppercase tracking-widest text-slate-700 hover:bg-slate-50 border-l-4 border-transparent hover:border-slate-900">Accueil</a>
+                <a href="{{ route('admin.products.index') }}" class="px-4 py-3 text-xs font-black uppercase tracking-widest text-slate-700 hover:bg-slate-50 border-l-4 border-transparent hover:border-blue-600">Produits</a>
+                <a href="{{ route('admin.categories.index') }}" class="px-4 py-3 text-xs font-black uppercase tracking-widest text-slate-700 hover:bg-slate-50 border-l-4 border-transparent hover:border-emerald-600">Catégories</a>
+                <a href="{{ route('admin.orders.index') }}" class="px-4 py-3 text-xs font-black uppercase tracking-widest text-slate-700 hover:bg-slate-50 border-l-4 border-transparent hover:border-purple-600">Commandes</a>
+                <a href="{{ route('admin.users.index') }}" class="px-4 py-3 text-xs font-black uppercase tracking-widest text-slate-700 hover:bg-slate-50 border-l-4 border-transparent hover:border-slate-900">Utilisateurs</a>
+                <a href="{{ route('admin.activity-logs.index') }}" class="px-4 py-3 text-xs font-black uppercase tracking-widest text-slate-700 hover:bg-slate-50 border-l-4 border-transparent hover:border-slate-900">Activités</a>
             </div>
-            <div class="border-t border-gray-100 mt-8 pt-8 text-center text-sm text-gray-400">
-                <p>&copy; {{ date('Y') }} Boutique Virtuelle. Tous droits réservés.</p>
-            </div>
+        </aside>
+
+        <main class="flex-1 w-full relative" id="main-content">
+    @else
+        <main class="flex-1 w-full max-w-[1600px] mx-auto px-4 lg:px-8 py-10" id="main-content">
+    @endif
+
+            @yield('content')
+
+        </main>
+    @if(auth()->check() && auth()->user()->isAdmin() && !request()->routeIs('products.*') && !request()->routeIs('home') && !request()->routeIs('profile.*'))
+    </div>
+    @endif
+
+    <footer class="mt-auto border-t-4 border-slate-900 bg-white">
+        <div class="max-w-[1600px] mx-auto px-4 lg:px-8 py-8 flex flex-col md:flex-row items-center justify-between gap-4">
+            <span class="text-xl font-black uppercase tracking-tighter">The Vault.</span>
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">&copy; {{ date('Y') }} Sécurisé et chiffré. | Prix en DH</p>
         </div>
     </footer>
 
-    <!-- Chat Widget -->
-    <div class="fixed bottom-6 right-6 z-50">
-        <!-- Chat Button -->
-        <button onclick="toggleChat()" id="chatButton" class="w-14 h-14 rounded-full btn-primary flex items-center justify-center shadow-2xl hover:scale-110 transition-transform">
-            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
-            </svg>
+    @if(session('success') || session('error'))
+        <div id="globalAlertModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/90 backdrop-blur-sm">
+            <div class="absolute inset-0" onclick="closeGlobalAlert()"></div>
+            <div class="bg-white border-4 border-slate-900 max-w-sm w-full p-8 relative z-10 opacity-0 transform scale-95" id="globalAlertContent">
+                <button onclick="closeGlobalAlert()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-900 transition-colors">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+                @if(session('success'))
+                    <div class="flex flex-col items-center text-center">
+                        <div class="w-16 h-16 bg-emerald-50 border-2 border-emerald-500 text-emerald-500 flex items-center justify-center text-3xl mb-6 shadow-[4px_4px_0px_0px_rgba(16,185,129,1)]">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <h3 class="text-3xl font-black text-slate-900 uppercase tracking-tighter mb-2">Succès</h3>
+                        <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">{{ session('success') }}</p>
+                    </div>
+                @endif
+                @if(session('error'))
+                    <div class="flex flex-col items-center text-center">
+                        <div class="w-16 h-16 bg-red-50 border-2 border-red-500 text-red-500 flex items-center justify-center text-3xl mb-6 shadow-[4px_4px_0px_0px_rgba(239,68,68,1)]">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <h3 class="text-3xl font-black text-slate-900 uppercase tracking-tighter mb-2">Erreur</h3>
+                        <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">{{ session('error') }}</p>
+                    </div>
+                @endif
+                <button onclick="closeGlobalAlert()" class="w-full mt-8 bg-slate-900 text-white py-4 font-black uppercase tracking-widest hover:bg-slate-800 transition-colors text-xs">
+                    Continuer
+                </button>
+            </div>
+        </div>
+    @endif
+
+    <div id="chatWidget" class="fixed bottom-6 right-6 z-50">
+        <button onclick="toggleChat()" class="w-14 h-14 bg-slate-900 flex items-center justify-center shadow-[4px_4px_0px_0px_rgba(52,211,153,1)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all duration-200">
+            <i class="fas fa-comment-dots text-white text-xl"></i>
         </button>
-
-        <!-- Chat Window -->
-        <div id="chatWindow" class="hidden absolute bottom-16 right-0 w-80 bg-white rounded-2xl shadow-2xl overflow-hidden">
-            <!-- Chat Header -->
-            <div class="gradient-primary p-4 flex items-center justify-between">
+        
+        <div id="chatWindow" class="hidden absolute bottom-20 right-0 w-[90vw] sm:w-96 bg-white border-4 border-slate-900 shadow-2xl overflow-hidden origin-bottom-right transition-transform">
+            <div class="bg-slate-900 p-4 flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
-                        </svg>
-                    </div>
+                    <div class="w-8 h-8 bg-white text-slate-900 flex items-center justify-center font-black"><i class="fas fa-robot text-xs"></i></div>
                     <div>
-                        <h3 class="text-white font-semibold">Assistant IA</h3>
-                        <p class="text-white/70 text-xs">En ligne</p>
+                        <h3 class="text-white font-black text-sm uppercase tracking-widest">Assistant</h3>
+                        <p class="text-emerald-400 text-[10px] font-bold uppercase tracking-widest flex items-center gap-1 mt-0.5"><span class="w-1.5 h-1.5 bg-emerald-400 animate-pulse"></span> En ligne</p>
                     </div>
                 </div>
-                <button onclick="toggleChat()" class="text-white/70 hover:text-white">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                    </svg>
-                </button>
+                <button onclick="toggleChat()" class="text-white/40 hover:text-white transition-colors"><i class="fas fa-times"></i></button>
             </div>
-
-            <!-- Chat Messages -->
-            <div id="chatMessages" class="h-64 overflow-y-auto p-4 bg-gray-50">
-                <div class="bg-white rounded-lg p-3 shadow-sm mb-3">
-                    <p class="text-sm text-gray-700">Bonjour ! 👋 Je suis l'assistant virtuel. Comment puis-je vous aider aujourd'hui ?</p>
+            
+            <div id="chatMessages" class="h-72 overflow-y-auto p-4 bg-slate-50 space-y-4">
+                <div class="flex items-end gap-2">
+                    <div class="w-6 h-6 bg-slate-900 flex items-center justify-center shrink-0"><i class="fas fa-robot text-white text-[10px]"></i></div>
+                    <div class="bg-white border-2 border-slate-200 p-3 shadow-sm max-w-[80%]">
+                        <p class="text-xs font-bold text-slate-700 leading-relaxed uppercase tracking-wide">Bonjour ! Bienvenue dans The Vault. Comment puis-je vous assister ?</p>
+                    </div>
                 </div>
             </div>
-
-            <!-- Chat Input -->
-            <div class="p-3 border-t border-gray-100 flex gap-2">
-                <input type="text" id="chatInput" placeholder="Écrivez votre message..." 
-                    class="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-primary-500">
-                <button onclick="sendMessage()" class="px-4 py-2 btn-primary text-white rounded-lg text-sm font-medium">
-                    Envoyer
-                </button>
+            
+            <div class="p-3 border-t-2 border-slate-900 bg-white">
+                <div class="flex gap-2">
+                    <input type="text" id="chatInput" placeholder="VOTRE MESSAGE..." class="flex-1 px-4 py-3 bg-slate-50 border-2 border-slate-200 text-xs font-bold uppercase tracking-widest focus:bg-white focus:border-slate-900 focus:ring-0 transition-all outline-none">
+                    <button onclick="sendMessage()" class="bg-slate-900 hover:bg-slate-800 px-4 text-white transition-colors flex items-center justify-center">
+                        <i class="fas fa-paper-plane text-sm"></i>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        function toggleChat() {
-            const chatWindow = document.getElementById('chatWindow');
-            chatWindow.classList.toggle('hidden');
-        }
+        // Menu Mobile (Navbar)
+        const mobileNavToggle = document.getElementById('mobileNavToggle');
+        const mobileNavOverlay = document.getElementById('mobileNavOverlay');
+        const body = document.body;
 
-        function sendMessage() {
-            const input = document.getElementById('chatInput');
-            const message = input.value.trim();
-            if (!message) return;
-
-            const messagesContainer = document.getElementById('chatMessages');
-            
-            // Add user message
-            const userDiv = document.createElement('div');
-            userDiv.className = 'flex justify-end mb-3';
-            userDiv.innerHTML = `<div class="bg-primary-500 text-white rounded-lg p-3 shadow-sm max-w-xs"><p class="text-sm">${escapeHtml(message)}</p></div>`;
-            messagesContainer.appendChild(userDiv);
-            
-            input.value = '';
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-
-            // Simulate AI response (placeholder for API integration)
-            setTimeout(() => {
-                const botDiv = document.createElement('div');
-                botDiv.className = 'mb-3';
-                botDiv.innerHTML = `<div class="bg-white rounded-lg p-3 shadow-sm"><p class="text-sm text-gray-700">Merci pour votre message ! Je suis un assistant IA en cours de configuration. Bientôt, je pourrai répondre à vos questions.</p></div>`;
-                messagesContainer.appendChild(botDiv);
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            }, 1000);
-        }
-
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        // Enter key to send message
-        document.getElementById('chatInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                sendMessage();
+        mobileNavToggle.addEventListener('click', () => {
+            const isClosed = mobileNavOverlay.classList.contains('translate-x-full');
+            if (isClosed) {
+                mobileNavOverlay.classList.remove('translate-x-full');
+                mobileNavToggle.innerHTML = '<i class="fas fa-times"></i>';
+                body.classList.add('no-scroll');
+            } else {
+                mobileNavOverlay.classList.add('translate-x-full');
+                mobileNavToggle.innerHTML = '<i class="fas fa-bars"></i>';
+                body.classList.remove('no-scroll');
             }
         });
+
+        // Sidebar Mobile Admin
+        function toggleAdminSidebar(){document.getElementById('mobileAdminSidebar').classList.toggle('hidden');}
+
+        // Modale d'alerte
+        const alertContent = document.getElementById('globalAlertContent');
+        if (alertContent) {
+            gsap.to(alertContent, { scale: 1, opacity: 1, duration: 0.5, ease: "back.out(1.5)", delay: 0.1 });
+        }
+        function closeGlobalAlert() {
+            const alertModal = document.getElementById('globalAlertModal');
+            if (alertModal && alertContent) {
+                gsap.to(alertContent, { scale: 0.9, opacity: 0, duration: 0.3, onComplete: () => alertModal.remove() });
+            }
+        }
+
+        // Chatbot
+        let chatMessages=[],isLoadingHistory=false;
+        function toggleChat(){
+            const win = document.getElementById('chatWindow');
+            win.classList.toggle('hidden');
+            if(!win.classList.contains('hidden')) {
+                gsap.fromTo(win, {scale: 0.9, opacity: 0}, {scale: 1, opacity: 1, duration: 0.3, ease: "back.out(1.7)"});
+                if(chatMessages.length===0) loadChatHistory();
+            }
+        }
+        
+        function loadChatHistory(){
+            if(isLoadingHistory)return;
+            isLoadingHistory=true;
+            fetch('{{ route("chat.history") }}').then(r=>r.json()).then(d=>{
+                chatMessages=d.messages||[];
+                renderChatHistory();
+                isLoadingHistory=false;
+            }).catch(()=>{isLoadingHistory=false;});
+        }
+        
+        function renderChatHistory(){
+            const c=document.getElementById('chatMessages');
+            c.innerHTML='';
+            if(chatMessages.length===0){
+                c.innerHTML=`<div class="flex items-end gap-2"><div class="w-6 h-6 bg-slate-900 flex items-center justify-center shrink-0"><i class="fas fa-robot text-white text-[10px]"></i></div><div class="bg-white border-2 border-slate-200 p-3 shadow-sm max-w-[80%]"><p class="text-xs font-bold text-slate-700 leading-relaxed uppercase tracking-wide">Bonjour ! Bienvenue dans The Vault. Comment puis-je vous assister ?</p></div></div>`;
+                return;
+            }
+            chatMessages.forEach(msg=>{
+                const d=document.createElement('div');
+                if(msg.sender_type==='system'){
+                    d.className='flex items-end gap-2';
+                    d.innerHTML=`<div class="w-6 h-6 bg-slate-900 flex items-center justify-center shrink-0"><i class="fas fa-robot text-white text-[10px]"></i></div><div class="bg-white border-2 border-slate-200 p-3 shadow-sm max-w-[80%]"><p class="text-xs font-bold text-slate-700 leading-relaxed uppercase tracking-wide">${escapeHtml(msg.message)}</p></div>`;
+                }else{
+                    d.className='flex items-end gap-2 flex-row-reverse';
+                    d.innerHTML=`<div class="w-6 h-6 bg-slate-200 flex items-center justify-center shrink-0"><i class="fas fa-user text-slate-600 text-[10px]"></i></div><div class="bg-slate-900 p-3 shadow-sm max-w-[80%]"><p class="text-xs font-bold text-white leading-relaxed uppercase tracking-wide">${escapeHtml(msg.message)}</p></div>`;
+                }
+                c.appendChild(d);
+            });
+            c.scrollTop=c.scrollHeight;
+        }
+        
+        function sendMessage(){
+            const input=document.getElementById('chatInput');
+            const msg=input.value.trim();
+            if(!msg)return;
+            
+            const c=document.getElementById('chatMessages');
+            const d=document.createElement('div');
+            d.className='flex items-end gap-2 flex-row-reverse';
+            d.innerHTML=`<div class="w-6 h-6 bg-slate-200 flex items-center justify-center shrink-0"><i class="fas fa-user text-slate-600 text-[10px]"></i></div><div class="bg-slate-900 p-3 shadow-sm max-w-[80%]"><p class="text-xs font-bold text-white leading-relaxed uppercase tracking-wide">${escapeHtml(msg)}</p></div>`;
+            c.appendChild(d);
+            
+            input.value='';
+            c.scrollTop=c.scrollHeight;
+            
+            fetch('{{ route("chat.store") }}',{
+                method:'POST',
+                headers:{'Content-Type':'application/json','X-CSRF-TOKEN':'{{ csrf_token() }}'},
+                body:JSON.stringify({message:msg})
+            }).then(r=>r.json()).then(data=>{
+                if(data.success) chatMessages.push(data.message);
+            }).catch(()=>{});
+            
+            setTimeout(()=>{
+                const b=document.createElement('div');
+                b.className='flex items-end gap-2';
+                b.innerHTML=`<div class="w-6 h-6 bg-slate-900 flex items-center justify-center shrink-0"><i class="fas fa-robot text-white text-[10px]"></i></div><div class="bg-white border-2 border-slate-200 p-3 shadow-sm max-w-[80%]"><p class="text-xs font-bold text-slate-700 leading-relaxed uppercase tracking-wide">Merci ! Un agent Vault vous répondra sous peu.</p></div>`;
+                c.appendChild(b);
+                c.scrollTop=c.scrollHeight;
+            }, 1200);
+        }
+        
+        function escapeHtml(text){const d=document.createElement('div');d.textContent=text;return d.innerHTML;}
+        document.getElementById('chatInput').addEventListener('keypress',function(e){if(e.key==='Enter')sendMessage();});
+
+        // Animations Globales
+        document.addEventListener("DOMContentLoaded", () => {
+            gsap.fromTo("#main-content", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.6, delay: 0.2, ease: "power2.out" });
+        });
     </script>
+
+    @stack('scripts')
 </body>
 </html>

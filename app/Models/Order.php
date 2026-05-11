@@ -20,6 +20,10 @@ class Order extends Model
         'statut',
         'adresse_livraison',
         'telephone_livraison',
+        'mode_paiement',
+        'paypal_paiement_id',
+        'paypal_payer_id',
+        'statut_paiement',
     ];
 
     protected $casts = [

@@ -7,10 +7,12 @@ use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\AIChatController;
+use App\Http\Controllers\Auth\GoogleSocialiteController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\Client\OrderController as ClientOrderController;
-use App\Http\Controllers\DeliveryController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\PayPalController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReviewController;
@@ -30,6 +32,12 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');
 Route::get('/products/{product:slug}', [ProductController::class, 'show'])->name('products.show');
 
+// Google OAuth routes
+Route::middleware('guest')->group(function () {
+    Route::get('/auth/google/redirect', [GoogleSocialiteController::class, 'redirectToGoogle'])->name('google.redirect');
+    Route::get('/auth/google/callback', [GoogleSocialiteController::class, 'handleGoogleCallback'])->name('google.callback');
+});
+
 // Authentication routes
 Route::middleware('guest')->group(function () {
     Route::get('/register', [RegisteredUserController::class, 'create'])->name('register');
@@ -39,7 +47,19 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
+    // PayPal routes
+    Route::get('/paypal/success', [PayPalController::class, 'success'])->name('paypal.success');
+    Route::get('/paypal/cancel', [PayPalController::class, 'cancel'])->name('paypal.cancel');
+    Route::get('/paypal/process/{order}', [PayPalController::class, 'processPayment'])->name('paypal.process');
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
+
+    // Chat history routes
+    Route::get('/chat/history', [App\Http\Controllers\ChatHistoryController::class, 'index'])->name('chat.history');
+    Route::post('/chat/message', [App\Http\Controllers\ChatHistoryController::class, 'store'])->name('chat.store');
+    Route::delete('/chat/clear', [App\Http\Controllers\ChatHistoryController::class, 'clear'])->name('chat.clear');
+
+    // AI Chat route
+    Route::post('/ai/chat', [AIChatController::class, 'chat'])->name('ai.chat');
 
     // Profile routes
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -47,80 +67,50 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // Seller routes (clients who can sell)
-    Route::middleware('client')->prefix('seller')->name('seller.')->group(function () {
-        Route::get('/products', [App\Http\Controllers\Seller\ProductController::class, 'index'])->name('products.index');
-        Route::get('/products/create', [App\Http\Controllers\Seller\ProductController::class, 'create'])->name('products.create');
-        Route::post('/products', [App\Http\Controllers\Seller\ProductController::class, 'store'])->name('products.store');
-        Route::get('/products/{product}/edit', [App\Http\Controllers\Seller\ProductController::class, 'edit'])->name('products.edit');
-        Route::put('/products/{product}', [App\Http\Controllers\Seller\ProductController::class, 'update'])->name('products.update');
-        Route::delete('/products/{product}', [App\Http\Controllers\Seller\ProductController::class, 'destroy'])->name('products.destroy');
-        
-        // Seller orders (view orders containing their products)
-        Route::get('/orders', [App\Http\Controllers\Seller\OrderController::class, 'index'])->name('orders.index');
-        Route::get('/orders/{order}', [App\Http\Controllers\Seller\OrderController::class, 'show'])->name('orders.show');
-    });
-
-    // Client routes
-    Route::middleware('client')->prefix('client')->name('client.')->group(function () {
-        // Cart
+    // Client routes (cart, orders, wishlist, reviews, profile)
+    Route::prefix('client')->name('client.')->group(function () {
         Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
         Route::post('/cart/add/{product}', [CartController::class, 'add'])->name('cart.add');
         Route::patch('/cart/{item}', [CartController::class, 'update'])->name('cart.update');
         Route::delete('/cart/{item}', [CartController::class, 'remove'])->name('cart.remove');
-        Route::post('/cart/checkout', [CartController::class, 'checkout'])->name('cart.checkout');
-
-        // Orders
+        Route::get('/cart/checkout', [CartController::class, 'checkoutPage'])->name('cart.checkout');
+        Route::post('/cart/checkout', [CartController::class, 'checkout'])->name('cart.checkout.process');
         Route::get('/orders', [ClientOrderController::class, 'index'])->name('orders.index');
         Route::get('/orders/{order}', [ClientOrderController::class, 'show'])->name('orders.show');
-
-        // Wishlist
+        Route::get('/orders/{order}/receipt', [ClientOrderController::class, 'receipt'])->name('orders.receipt');
         Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
         Route::post('/wishlist/{product}', [WishlistController::class, 'add'])->name('wishlist.add');
         Route::delete('/wishlist/{product}', [WishlistController::class, 'remove'])->name('wishlist.remove');
-
-        // Reviews
         Route::post('/reviews/{product}', [ReviewController::class, 'store'])->name('reviews.store');
-    });
-
-    // Delivery routes (for livreur role)
-    Route::middleware('livreur')->prefix('delivery')->name('delivery.')->group(function () {
-        Route::get('/dashboard', [DeliveryController::class, 'dashboard'])->name('dashboard');
-        Route::get('/scan', [DeliveryController::class, 'scan'])->name('scan');
-        Route::post('/scan', [DeliveryController::class, 'processScan'])->name('scan.process');
-        Route::get('/history', [DeliveryController::class, 'history'])->name('history');
-        Route::post('/deliveries/{delivery}/status', [DeliveryController::class, 'updateStatus'])->name('update-status');
+        Route::get('/profile', [App\Http\Controllers\Client\ProfileController::class, 'index'])->name('profile');
+        Route::get('/profile/orders', [App\Http\Controllers\Client\ProfileController::class, 'orders'])->name('profile.orders');
+        Route::get('/profile/reviews', [App\Http\Controllers\Client\ProfileController::class, 'reviews'])->name('profile.reviews');
+        Route::get('/profile/wishlist', [App\Http\Controllers\Client\ProfileController::class, 'wishlist'])->name('profile.wishlist');
+        Route::get('/profile/orders/{order}', [App\Http\Controllers\Client\ProfileController::class, 'showOrder'])->name('profile.order-details');
     });
 
     // Admin routes
     Route::middleware('admin')->prefix('admin')->name('admin.')->group(function () {
-        // Dashboard
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-
-        // Products management
         Route::get('/products', [AdminProductController::class, 'index'])->name('products.index');
         Route::get('/products/create', [AdminProductController::class, 'create'])->name('products.create');
         Route::post('/products', [AdminProductController::class, 'store'])->name('products.store');
         Route::get('/products/{product}/edit', [AdminProductController::class, 'edit'])->name('products.edit');
         Route::put('/products/{product}', [AdminProductController::class, 'update'])->name('products.update');
         Route::delete('/products/{product}', [AdminProductController::class, 'destroy'])->name('products.destroy');
-
-        // Categories management
         Route::get('/categories', [AdminCategoryController::class, 'index'])->name('categories.index');
         Route::get('/categories/create', [AdminCategoryController::class, 'create'])->name('categories.create');
         Route::post('/categories', [AdminCategoryController::class, 'store'])->name('categories.store');
         Route::get('/categories/{category}/edit', [AdminCategoryController::class, 'edit'])->name('categories.edit');
         Route::put('/categories/{category}', [AdminCategoryController::class, 'update'])->name('categories.update');
         Route::delete('/categories/{category}', [AdminCategoryController::class, 'destroy'])->name('categories.destroy');
-
-        // Orders management
         Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
         Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
         Route::patch('/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.update-status');
-
-        // Users management
         Route::get('/users', [UserController::class, 'index'])->name('users.index');
         Route::get('/users/{user}', [UserController::class, 'show'])->name('users.show');
         Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+        Route::get('/activity-logs', [App\Http\Controllers\Admin\ActivityLogController::class, 'index'])->name('activity-logs.index');
+        Route::get('/activity-logs/export', [App\Http\Controllers\Admin\ActivityLogController::class, 'export'])->name('activity-logs.export');
     });
 });

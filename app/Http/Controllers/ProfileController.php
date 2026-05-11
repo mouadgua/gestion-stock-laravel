@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Services\CloudinaryService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
@@ -22,7 +23,7 @@ class ProfileController extends Controller
     /**
      * Update the user's profile information.
      */
-    public function update(Request $request)
+    public function update(Request $request, CloudinaryService $cloudinary)
     {
         $user = $request->user();
 
@@ -31,7 +32,23 @@ class ProfileController extends Controller
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
             'telephone' => ['nullable', 'string', 'max:20'],
             'adresse' => ['nullable', 'string', 'max:500'],
+            'avatar' => ['nullable', 'image', 'mimes:jpeg,png,webp,gif,avif', 'max:5120'],
         ]);
+
+        // Handle avatar upload
+        if ($request->hasFile('avatar') && $request->file('avatar')->isValid()) {
+            $result = $cloudinary->upload($request->file('avatar'), 'avatars');
+            if ($result) {
+                // Delete old avatar if it exists and is from Cloudinary
+                if ($user->avatar && str_contains($user->avatar, 'cloudinary')) {
+                    $oldPublicId = $cloudinary->getPublicIdFromUrl($user->avatar);
+                    if ($oldPublicId) {
+                        $cloudinary->delete($oldPublicId);
+                    }
+                }
+                $validated['avatar'] = $result['url'];
+            }
+        }
 
         $user->fill($validated);
 

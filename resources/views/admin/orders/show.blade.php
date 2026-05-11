@@ -1,149 +1,149 @@
 @extends('layouts.app')
 
-@section('title', 'Commande #' . $order->id_commande . ' - Admin')
+@section('title', 'Dossier #' . $order->id_commande . ' - Admin - The Vault')
 
 @section('content')
-<div class="max-w-5xl mx-auto">
-    <div class="mb-6">
-        <a href="{{ route('admin.orders.index') }}" class="text-purple-600 hover:text-purple-700 text-sm flex items-center gap-1">
-            ← Retour aux commandes
+<div class="max-w-6xl mx-auto">
+    <div class="mb-12 gsap-fade-up">
+        <a href="{{ route('admin.orders.index') }}" class="inline-flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-widest hover:text-purple-600 transition-colors mb-6">
+            <i class="fas fa-arrow-left"></i> Retour aux dossiers
         </a>
-        <div class="flex justify-between items-center mt-4">
+        <div class="flex flex-col md:flex-row md:items-end justify-between border-b-4 border-slate-900 pb-6 gap-6">
             <div>
-                <h1 class="text-3xl font-bold text-gray-900">Commande #{{ $order->id_commande }}</h1>
-                <p class="text-gray-500 mt-1">Passée le {{ \Carbon\Carbon::parse($order->date_commande)->format('d/m/Y à H:i') }}</p>
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Dossier d'acquisition</p>
+                <h1 class="text-5xl md:text-7xl font-mono font-black text-slate-900 tracking-tighter uppercase leading-none">
+                    #{{ $order->id_commande }}
+                </h1>
+                <p class="font-mono text-sm font-bold text-slate-500 mt-4"><i class="far fa-clock mr-1"></i> {{ \Carbon\Carbon::parse($order->date_commande)->format('d/m/Y - H:i') }}</p>
             </div>
-            <span class="px-4 py-2 text-sm rounded-full font-medium
-                @if($order->statut == 'en_attente') bg-yellow-100 text-yellow-800
-                @elseif($order->statut == 'expediee') bg-blue-100 text-blue-800
-                @elseif($order->statut == 'livree') bg-green-100 text-green-800
-                @else bg-red-100 text-red-800
+            
+            <div class="px-6 py-3 border-2 text-xs font-black uppercase tracking-widest text-center
+                @if($order->statut == 'en_attente') border-amber-500 text-amber-600
+                @elseif($order->statut == 'expediee') border-purple-600 text-purple-600
+                @elseif($order->statut == 'livree') border-emerald-500 text-emerald-600
+                @else border-red-500 text-red-600
                 @endif">
-                @if($order->statut == 'en_attente') 🕐 En attente
-                @elseif($order->statut == 'expediee') 📦 Expédiée
-                @elseif($order->statut == 'livree') ✅ Livrée
-                @else ❌ Annulée
-                @endif
-            </span>
+                Statut actuel : {{ str_replace('_', ' ', $order->statut) }}
+            </div>
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-        <!-- Customer Info -->
-        <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h2 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                </svg>
-                Informations Client
-            </h2>
-            <div class="grid grid-cols-2 gap-4">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+        
+        <div class="lg:col-span-2 bg-slate-50 p-8 border-2 border-slate-200 relative gsap-fade-up">
+            <div class="absolute top-0 right-0 bg-slate-900 text-white px-4 py-1 text-[10px] font-black uppercase tracking-widest">
+                Profil Client
+            </div>
+            <div class="grid grid-cols-2 gap-8 mt-4">
                 <div>
-                    <p class="text-sm text-gray-500">Nom</p>
-                    <p class="font-medium text-gray-900">{{ $order->user->name }}</p>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Identité</p>
+                    <p class="font-black text-slate-900 uppercase text-lg">{{ $order->user->name }}</p>
                 </div>
                 <div>
-                    <p class="text-sm text-gray-500">Email</p>
-                    <p class="font-medium text-gray-900">{{ $order->user->email }}</p>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Contact</p>
+                    <p class="font-bold text-slate-700">{{ $order->user->email }}</p>
+                    <p class="font-bold text-slate-700 mt-1">{{ $order->user->telephone ?? 'N/A' }}</p>
                 </div>
-                <div>
-                    <p class="text-sm text-gray-500">Téléphone</p>
-                    <p class="font-medium text-gray-900">{{ $order->user->telephone ?? 'Non renseigné' }}</p>
-                </div>
-                <div>
-                    <p class="text-sm text-gray-500">Rôle</p>
-                    <p class="font-medium text-gray-900 capitalize">{{ $order->user->role }}</p>
+                <div class="col-span-2">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Destination</p>
+                    <p class="font-bold text-slate-700">{{ $order->adresse_livraison ?? $order->user->adresse ?? 'Non spécifiée' }}</p>
+                    <p class="font-bold text-slate-700 mt-1">📞 {{ $order->telephone_livraison ?? $order->user->telephone ?? 'Non renseigné' }}</p>
                 </div>
             </div>
         </div>
 
-        <!-- Change Status -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h2 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-                Changer le statut
-            </h2>
-            <form action="{{ route('admin.orders.update-status', $order) }}" method="POST">
+        <div class="bg-purple-600 text-white p-8 border-2 border-purple-900 relative gsap-fade-up">
+            <h2 class="text-sm font-black uppercase tracking-widest mb-6 border-b border-purple-400 pb-2">Mise à jour requise</h2>
+            
+            <form action="{{ route('admin.orders.update-status', $order) }}" method="POST" class="flex flex-col h-full">
                 @csrf
                 @method('PATCH')
-                <select name="statut" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent mb-3">
-                    <option value="en_attente" {{ $order->statut == 'en_attente' ? 'selected' : '' }}>En attente</option>
-                    <option value="expediee" {{ $order->statut == 'expediee' ? 'selected' : '' }}>Expédiée</option>
-                    <option value="livree" {{ $order->statut == 'livree' ? 'selected' : '' }}>Livrée</option>
-                    <option value="annulee" {{ $order->statut == 'annulee' ? 'selected' : '' }}>Annulée</option>
-                </select>
-                <button type="submit" class="w-full btn-primary text-white py-2 rounded-lg font-semibold">
-                    Mettre à jour
+                <div class="relative flex-1">
+                    <select name="statut" class="w-full px-4 py-4 bg-purple-800 border-none text-white font-black uppercase tracking-widest focus:ring-4 focus:ring-purple-400 appearance-none cursor-pointer">
+                        <option value="en_attente" {{ $order->statut == 'en_attente' ? 'selected' : '' }}>EN ATTENTE</option>
+                        <option value="expediee" {{ $order->statut == 'expediee' ? 'selected' : '' }}>EXPÉDIÉE</option>
+                        <option value="livree" {{ $order->statut == 'livree' ? 'selected' : '' }}>LIVRÉE</option>
+                        <option value="annulee" {{ $order->statut == 'annulee' ? 'selected' : '' }}>ANNULÉE</option>
+                    </select>
+                    <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-purple-400 pointer-events-none"></i>
+                </div>
+                <button type="submit" class="w-full bg-white text-purple-900 py-4 font-black uppercase tracking-widest mt-4 hover:bg-slate-100 transition-colors">
+                    Appliquer le statut
                 </button>
             </form>
         </div>
     </div>
 
-    <!-- Order Items -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6">
-        <div class="p-6 border-b border-gray-100">
-            <h2 class="text-lg font-bold text-gray-900">Articles commandés</h2>
+    <div class="border-2 border-slate-900 bg-white gsap-fade-up">
+        <div class="p-6 border-b-2 border-slate-900 bg-slate-900 text-white">
+            <h2 class="text-sm font-black uppercase tracking-widest">Inventaire du dossier</h2>
         </div>
-        <div class="divide-y divide-gray-100">
+        
+        <div class="divide-y-2 divide-slate-100">
             @foreach($order->items as $item)
-                <div class="p-6 flex items-center gap-4 hover:bg-gray-50 transition">
-                    <img src="{{ $item->product->image ?? 'https://via.placeholder.com/80' }}" 
-                         alt="{{ $item->product->nom_produit }}" 
-                         class="w-20 h-20 rounded-lg object-cover border border-gray-200">
-                    <div class="flex-1">
-                        <h3 class="font-semibold text-gray-900">{{ $item->product->nom_produit }}</h3>
-                        <p class="text-sm text-gray-500">{{ $item->product->categorie->nom_categorie ?? '' }}</p>
+                <div class="p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-6 hover:bg-slate-50 transition-colors">
+                    <div class="flex items-center gap-6">
+                        <div class="w-24 aspect-[4/5] bg-slate-100 overflow-hidden shrink-0 border border-slate-200">
+                            <img src="{{ $item->product->image ?? 'https://via.placeholder.com/150' }}" 
+                                 alt="{{ $item->product->nom_produit }}" 
+                                 class="w-full h-full object-cover">
+                        </div>
+                        <div>
+                            <h3 class="font-black text-slate-900 uppercase text-lg">{{ $item->product->nom_produit }}</h3>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">{{ $item->product->categorie->nom_categorie ?? 'Standard' }}</p>
+                        </div>
                     </div>
-                    <div class="text-center">
-                        <p class="text-sm text-gray-500">Quantité</p>
-                        <p class="font-semibold text-gray-900">{{ $item->quantite }}</p>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-sm text-gray-500">Sous-total</p>
-                        <p class="font-bold text-gray-900">{{ number_format($item->sous_total, 2) }} €</p>
+                    
+                    <div class="flex items-center gap-12 sm:text-right">
+                        <div>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Qté</p>
+                            <p class="font-mono font-black text-slate-900 text-xl">{{ $item->quantite }}</p>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Sous-total</p>
+                            <p class="font-black text-slate-900 text-xl whitespace-nowrap">{{ number_format($item->sous_total, 2) }} DH</p>
+                        </div>
                     </div>
                 </div>
             @endforeach
         </div>
-        <div class="p-6 bg-gray-50">
-            <div class="flex justify-between items-center">
-                <span class="text-gray-600">Total de la commande</span>
-                <span class="text-2xl font-bold text-gray-900">{{ number_format($order->total, 2) }} €</span>
+        
+        <div class="p-8 bg-slate-50 border-t-4 border-slate-900 flex justify-between items-end">
+            <div>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Mode de règlement</p>
+                <p class="font-black text-slate-900 uppercase">
+                    @if($order->mode_paiement === 'paypal')
+                        <span class="inline-flex items-center gap-1"><i class="fab fa-paypal text-blue-600"></i> PayPal</span>
+                    @else
+                        <span class="inline-flex items-center gap-1"><i class="fas fa-money-bill-wave text-emerald-600"></i> Paiement à la livraison</span>
+                    @endif
+                </p>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-2">
+                    Statut paiement: 
+                    <span class="px-1 py-0.5
+                        @if($order->statut_paiement === 'paye') text-emerald-600
+                        @elseif($order->statut_paiement === 'echoue') text-red-600
+                        @else text-amber-600 @endif">
+                        {{ str_replace('_', ' ', $order->statut_paiement ?? 'en_attente') }}
+                    </span>
+                </p>
+                @if($order->paypal_paiement_id)
+                    <p class="text-[10px] font-mono text-slate-500 mt-1">ID: {{ $order->paypal_paiement_id }}</p>
+                @endif
             </div>
-        </div>
-    </div>
-
-    <!-- Shipping Info -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h2 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                </svg>
-                Adresse de livraison
-            </h2>
-            <div class="text-gray-600">
-                <p class="font-medium text-gray-900">{{ $order->user->name }}</p>
-                <p>{{ $order->adresse_livraison ?? $order->user->adresse ?? 'Non renseignée' }}</p>
-                <p class="mt-2">📞 {{ $order->telephone_livraison ?? $order->user->telephone ?? 'Non renseigné' }}</p>
-            </div>
-        </div>
-
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h2 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
-                </svg>
-                Paiement
-            </h2>
-            <div class="text-gray-600">
-                <p>Mode : <span class="font-medium text-gray-900">À la livraison</span></p>
-                <p class="mt-2 text-sm">Statut : <span class="text-green-600 font-medium">Payé</span></p>
+            <div class="text-right">
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-1">Total Net</span>
+                <span class="text-4xl md:text-5xl font-black text-slate-900 tracking-tighter leading-none">{{ number_format($order->total, 2) }} <span class="text-2xl">DH</span></span>
             </div>
         </div>
     </div>
 </div>
+
+@push('scripts')
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        gsap.fromTo(".gsap-fade-up", { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8, stagger: 0.1, ease: "power3.out" });
+    });
+</script>
+@endpush
 @endsection

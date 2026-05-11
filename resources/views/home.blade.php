@@ -1,147 +1,202 @@
 @extends('layouts.app')
 
-@section('title', 'Accueil - Boutique Virtuelle')
+@section('title', 'Accueil - The Vault')
 
 @section('content')
-<!-- Hero Section -->
-<div class="relative overflow-hidden rounded-3xl gradient-primary mb-12">
-    <div class="absolute inset-0 opacity-10">
-        <div class="absolute top-0 left-0 w-96 h-96 bg-white rounded-full -translate-x-1/2 -translate-y-1/2"></div>
-        <div class="absolute bottom-0 right-0 w-64 h-64 bg-white rounded-full translate-x-1/3 translate-y-1/3"></div>
-    </div>
-    <div class="relative px-8 py-20 text-center">
-        <h1 class="text-5xl md:text-6xl font-bold text-white mb-6">
-            Bienvenue sur notre Boutique
+
+<div class="relative w-full h-[80vh] min-h-[600px] bg-slate-900 rounded-[2.5rem] overflow-hidden flex flex-col justify-end p-8 md:p-16 mb-20 group">
+    <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop" 
+         alt="The Vault Hero" 
+         class="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-overlay gsap-parallax scale-105">
+    
+    <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent"></div>
+
+    <div class="relative z-10 w-full max-w-5xl mx-auto flex flex-col items-center text-center">
+        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/20 bg-white/5 backdrop-blur-md text-white/80 text-xs font-bold uppercase tracking-widest mb-8 gsap-hero-el">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            Nouveautés exclusives
+        </div>
+        
+        <h1 class="text-6xl md:text-8xl lg:text-9xl font-black text-white mb-8 tracking-tighter leading-none gsap-hero-el">
+            THE VAULT.
         </h1>
-        <p class="text-xl text-white/90 mb-10 max-w-2xl mx-auto">
-            Découvrez nos produits de qualité aux meilleurs prix. Livraison rapide et service client exceptionnel.
+        
+        <p class="text-lg md:text-2xl text-white/70 font-medium mb-12 max-w-2xl mx-auto gsap-hero-el">
+            L'excellence à l'état pur. Découvrez notre sélection d'équipements premium.
         </p>
 
-        <!-- Search Bar -->
-        <div class="max-w-2xl mx-auto">
-            <form action="{{ route('products.index') }}" method="GET" class="relative">
-                <div class="flex items-center bg-white rounded-full shadow-2xl overflow-hidden">
-                    <div class="flex-1 flex items-center px-6">
-                        <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                        </svg>
-                        <input type="text" name="search" placeholder="Rechercher un produit..." 
-                            class="w-full px-4 py-4 text-gray-700 bg-transparent focus:outline-none text-lg"
-                            value="{{ request('search') }}">
+        <div class="w-full max-w-3xl mx-auto gsap-hero-el">
+            <form action="{{ route('products.index') }}" method="GET" class="relative group/form">
+                <div class="flex items-center bg-white/10 backdrop-blur-xl rounded-2xl overflow-hidden border border-white/20 focus-within:border-white transition-all duration-500 hover:bg-white/20">
+                    <div class="pl-6 pr-4">
+                        <i class="fas fa-search text-white/50 text-xl group-focus-within/form:text-white transition-colors"></i>
                     </div>
-                    <button type="submit" class="px-8 py-4 bg-gradient-to-r from-primary-500 to-indigo-500 text-white font-semibold hover:from-primary-600 hover:to-indigo-600 transition">
-                        Rechercher
+                    <input type="text" name="search" placeholder="Rechercher un objet..." value="{{ request('search') }}"
+                        class="w-full py-5 md:py-6 text-white placeholder-white/50 bg-transparent focus:outline-none text-lg md:text-xl font-bold">
+                    <button type="submit" class="px-8 py-5 md:py-6 bg-white text-slate-900 font-black uppercase tracking-widest hover:bg-slate-200 transition-colors hidden sm:block">
+                        Explorer
                     </button>
                 </div>
             </form>
-            <!-- Quick filters -->
-            <div class="flex justify-center gap-3 mt-4">
-                <span class="text-white/70 text-sm">Populaire:</span>
-                <a href="{{ route('products.index') }}?sort=bestsellers" class="text-white/90 text-sm hover:text-white underline">Meilleures ventes</a>
-                <a href="{{ route('products.index') }}?sort=newest" class="text-white/90 text-sm hover:text-white underline">Nouveautés</a>
-                <a href="{{ route('products.index') }}?sort=promotions" class="text-white/90 text-sm hover:text-white underline">Promotions</a>
+            <div class="flex flex-wrap justify-center gap-4 mt-6 text-xs font-bold tracking-widest uppercase">
+                <span class="text-white/40">Tendances :</span>
+                <a href="{{ route('products.index') }}?sort=bestsellers" class="text-white hover:text-slate-300 transition-colors">Meilleures ventes</a>
+                <span class="text-white/20">/</span>
+                <a href="{{ route('products.index') }}?sort=newest" class="text-white hover:text-slate-300 transition-colors">Derniers ajouts</a>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Features Section -->
-<div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-    <div class="bg-white rounded-2xl shadow-soft p-8 text-center card-hover">
-        <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-r from-green-100 to-emerald-100 flex items-center justify-center">
-            <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-            </svg>
-        </div>
-        <h3 class="text-xl font-bold text-gray-900 mb-2">Qualité Garantie</h3>
-        <p class="text-gray-500">Tous nos produits sont vérifiés et certifiés</p>
+<div class="grid grid-cols-2 md:grid-cols-4 border-y border-slate-200 py-10 mb-24 gsap-fade-up">
+    <div class="text-center px-4 border-r border-slate-100 last:border-0 md:last:border-r-0">
+        <p class="text-4xl md:text-5xl font-black text-slate-900 tracking-tighter mb-1">{{ $recentProducts->count() }}+</p>
+        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Objets en stock</p>
     </div>
-    <div class="bg-white rounded-2xl shadow-soft p-8 text-center card-hover">
-        <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-r from-blue-100 to-indigo-100 flex items-center justify-center">
-            <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
-        </div>
-        <h3 class="text-xl font-bold text-gray-900 mb-2">Livraison Rapide</h3>
-        <p class="text-gray-500">Expédition en 24-48h ouvrées</p>
+    <div class="text-center px-4 border-r-0 md:border-r border-slate-100">
+        <p class="text-4xl md:text-5xl font-black text-slate-900 tracking-tighter mb-1">24h</p>
+        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Expédition</p>
     </div>
-    <div class="bg-white rounded-2xl shadow-soft p-8 text-center card-hover">
-        <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-r from-purple-100 to-pink-100 flex items-center justify-center">
-            <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
-            </svg>
-        </div>
-        <h3 class="text-xl font-bold text-gray-900 mb-2">Paiement Sécurisé</h3>
-        <p class="text-gray-500">Transactions cryptées et protégées</p>
+    <div class="text-center px-4 border-r border-slate-100 mt-8 md:mt-0 pt-8 md:pt-0 border-t md:border-t-0">
+        <p class="text-4xl md:text-5xl font-black text-slate-900 tracking-tighter mb-1">100%</p>
+        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Sécurisé</p>
+    </div>
+    <div class="text-center px-4 mt-8 md:mt-0 pt-8 md:pt-0 border-t md:border-t-0 border-slate-100">
+        <p class="text-4xl md:text-5xl font-black text-slate-900 tracking-tighter mb-1">7/7</p>
+        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Conciergerie</p>
     </div>
 </div>
 
-<!-- Recent Products -->
-<div class="mb-16">
-    <div class="flex justify-between items-center mb-8">
-        <h2 class="text-3xl font-bold text-gray-900">Produits Récents</h2>
-        <a href="{{ route('products.index') }}" class="text-primary-600 hover:text-primary-700 font-medium flex items-center gap-2">
-            Voir tout
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-            </svg>
+<div class="mb-24">
+    <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6 gsap-fade-up">
+        <div>
+            <h2 class="text-5xl md:text-7xl font-black text-slate-900 tracking-tighter leading-none">NOUVELLES<br>ARRIVÉES.</h2>
+        </div>
+        <a href="{{ route('products.index') }}" class="inline-flex items-center gap-3 text-sm font-bold text-slate-900 uppercase tracking-widest hover:text-slate-500 transition-colors group">
+            Voir la collection complète 
+            <span class="w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center group-hover:translate-x-2 transition-transform">
+                <i class="fas fa-arrow-right text-xs"></i>
+            </span>
         </a>
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-12">
         @forelse($recentProducts as $product)
-            <div class="bg-white rounded-2xl shadow-soft overflow-hidden card-hover group">
-                <div class="relative overflow-hidden">
-                    <img src="{{ $product->image ? asset('storage/' . $product->image) : 'https://via.placeholder.com/300x200?text=Produit' }}" 
-                         alt="{{ $product->nom_produit }}" 
-                         class="w-full h-48 object-cover group-hover:scale-105 transition duration-500">
+            <div class="group cursor-pointer gsap-product">
+                <a href="{{ route('products.show', $product->slug) }}" class="block relative overflow-hidden aspect-[4/5] bg-slate-100 mb-5">
+                    <img src="{{ $product->image ? asset('storage/' . $product->image) : 'https://via.placeholder.com/600x800?text=' . urlencode($product->nom_produit) }}"
+                         alt="{{ $product->nom_produit }}"
+                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)]">
+                    
                     @if(!$product->isAvailable())
-                        <div class="absolute inset-0 bg-black/50 flex items-center justify-center">
-                            <span class="bg-red-500 text-white px-4 py-2 rounded-full text-sm font-medium">Rupture de stock</span>
+                        <div class="absolute inset-0 bg-slate-900/20 backdrop-blur-[2px] flex items-center justify-center">
+                            <span class="bg-slate-900 text-white px-6 py-3 text-xs font-bold uppercase tracking-widest">Épuisé</span>
                         </div>
                     @endif
-                </div>
-                <div class="p-5">
-                    <h3 class="font-bold text-gray-900 mb-2 line-clamp-1">{{ $product->nom_produit }}</h3>
-                    <p class="text-sm text-gray-500 mb-3 line-clamp-2">{{ Str::limit($product->description, 60) }}</p>
-                    <div class="flex justify-between items-center">
-                        <span class="text-xl font-bold text-primary-600">{{ number_format($product->prix, 2) }} €</span>
-                        <a href="{{ route('products.show', $product->slug) }}" class="px-4 py-2 btn-primary text-white rounded-lg text-sm font-medium">
-                            Voir
-                        </a>
+                    
+                    <div class="absolute inset-x-0 bottom-0 p-4 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 bg-gradient-to-t from-black/50 to-transparent flex justify-center">
+                        <span class="bg-white text-slate-900 px-6 py-3 font-bold text-xs uppercase tracking-widest hover:bg-slate-900 hover:text-white transition-colors">
+                            Voir les détails
+                        </span>
                     </div>
+                </a>
+                
+                <div class="flex justify-between items-start gap-4">
+                    <div>
+                        <h3 class="font-extrabold text-slate-900 text-lg leading-tight mb-1 group-hover:text-slate-600 transition-colors line-clamp-1">
+                            {{ $product->nom_produit }}
+                        </h3>
+                        <p class="text-sm font-medium text-slate-500 line-clamp-1">{{ Str::limit($product->description, 40) }}</p>
+                    </div>
+                    <span class="font-black text-slate-900 text-lg whitespace-nowrap">{{ number_format($product->prix, 2) }} DH</span>
                 </div>
             </div>
         @empty
-            <div class="col-span-full text-center py-16">
-                <svg class="mx-auto h-16 w-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
-                </svg>
-                <h3 class="mt-4 text-lg font-medium text-gray-900">Aucun produit disponible</h3>
-                <p class="mt-2 text-gray-500">Revenez bientôt pour découvrir nos nouveautés !</p>
+            <div class="col-span-full py-32 text-center border border-slate-200 border-dashed rounded-[2rem]">
+                <h3 class="text-3xl font-black text-slate-900 mb-2">Le coffre est vide.</h3>
+                <p class="text-slate-500 font-medium">Revenez bientôt pour découvrir nos nouveautés.</p>
             </div>
         @endforelse
     </div>
 </div>
 
-<!-- CTA Section -->
-<div class="bg-gradient-to-r from-gray-900 to-gray-800 rounded-3xl p-12 text-center">
-    <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">
-        Prêt à commencer à vendre ?
-    </h2>
-    <p class="text-gray-300 mb-8 max-w-xl mx-auto">
-        Rejoignez notre plateforme et vendez vos produits à des milliers de clients.
-    </p>
-    @auth
-        @if(auth()->user()->isClient())
-            <a href="{{ route('seller.products.index') }}" class="inline-block btn-primary text-white px-8 py-4 rounded-lg font-semibold">
-                Devenir vendeur
+<div class="bg-slate-900 rounded-[2.5rem] p-10 md:p-24 text-center relative overflow-hidden gsap-fade-up">
+    <div class="absolute top-0 right-0 w-[800px] h-[800px] bg-white opacity-5 rounded-full blur-3xl transform translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
+    
+    <div class="relative z-10">
+        <h2 class="text-4xl md:text-7xl font-black text-white mb-6 tracking-tighter leading-tight">
+            ACCÉDEZ À<br>L'EXCELLENCE.
+        </h2>
+        <p class="text-lg text-white/60 font-medium mb-10 max-w-xl mx-auto">
+            Rejoignez The Vault. Créez votre compte pour accéder à notre conciergerie et à nos offres privées.
+        </p>
+        
+        @auth
+            <a href="{{ route('products.index') }}" class="inline-block bg-white text-slate-900 font-black uppercase tracking-widest px-10 py-5 hover:bg-slate-200 transition-all hover:scale-105 duration-300">
+                Ouvrir le coffre
             </a>
-        @endif
-    @else
-        <a href="{{ route('register') }}" class="inline-block btn-primary text-white px-8 py-4 rounded-lg font-semibold">
-            S'inscrire maintenant
-        </a>
-    @endauth
+        @else
+            <a href="{{ route('register') }}" class="inline-block bg-white text-slate-900 font-black uppercase tracking-widest px-10 py-5 hover:bg-slate-200 transition-all hover:scale-105 duration-300">
+                Devenir Membre
+            </a>
+        @endauth
+    </div>
 </div>
+
+@push('scripts')
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        // Animation du texte dans le Hero (Stagger)
+        gsap.fromTo(".gsap-hero-el", 
+            { y: 50, opacity: 0 }, 
+            { y: 0, opacity: 1, duration: 1, stagger: 0.15, ease: "power4.out", delay: 0.2 }
+        );
+
+        // Effet Parallax doux sur l'image du Hero au scroll
+        gsap.to(".gsap-parallax", {
+            yPercent: 20,
+            ease: "none",
+            scrollTrigger: {
+                trigger: ".gsap-parallax",
+                start: "top top",
+                end: "bottom top",
+                scrub: true
+            }
+        });
+
+        // Apparition générique au scroll pour les sections
+        gsap.utils.toArray('.gsap-fade-up').forEach(section => {
+            gsap.fromTo(section,
+                { y: 60, opacity: 0 },
+                {
+                    scrollTrigger: {
+                        trigger: section,
+                        start: "top 85%",
+                    },
+                    y: 0,
+                    opacity: 1,
+                    duration: 1,
+                    ease: "power3.out"
+                }
+            );
+        });
+
+        // Stagger sur la grille de produits (Lookbook)
+        gsap.fromTo(".gsap-product",
+            { y: 50, opacity: 0 },
+            {
+                scrollTrigger: {
+                    trigger: ".gsap-product",
+                    start: "top 80%",
+                },
+                y: 0,
+                opacity: 1,
+                duration: 0.8,
+                stagger: 0.1,
+                ease: "power3.out"
+            }
+        );
+    });
+</script>
+@endpush
 @endsection

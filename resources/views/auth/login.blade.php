@@ -1,50 +1,112 @@
 @extends('layouts.app')
 
-@section('title', 'Connexion - Boutique Virtuelle')
+@section('title', 'Connexion - The Vault')
 
 @section('content')
-<div class="max-w-md mx-auto">
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
-        <h2 class="text-2xl font-bold text-gray-900 mb-6 text-center">Connexion</h2>
-
-        <form method="POST" action="{{ route('login') }}">
-            @csrf
-
-            <!-- Email -->
-            <div class="mb-4">
-                <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                <input type="email" name="email" id="email" value="{{ old('email') }}" required autofocus
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent @error('email') border-red-500 @enderror">
-                @error('email')
-                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                @enderror
+<div class="min-h-[80vh] flex items-center justify-center py-12 bg-slate-50">
+    <div class="w-full max-w-md relative z-10">
+        <div class="absolute inset-0 -z-10 bg-gradient-to-r from-slate-300 to-slate-200 blur-3xl opacity-50 rounded-full transform -translate-y-10 scale-110"></div>
+        
+        <div class="bg-white rounded-[2rem] p-8 md:p-10 shadow-2xl shadow-slate-200/50 border border-slate-100">
+            <div class="text-center mb-10 gsap-stagger">
+                <div class="w-16 h-16 mx-auto mb-5 rounded-2xl bg-gradient-to-tr from-slate-900 to-slate-700 flex items-center justify-center shadow-lg shadow-slate-900/20 transform transition-transform duration-300 hover:scale-105">
+                    <i class="fas fa-vault text-white text-2xl"></i>
+                </div>
+                <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Bienvenue</h1>
+                <p class="text-slate-500 mt-2 font-medium">Accédez à votre espace The Vault</p>
             </div>
 
-            <!-- Password -->
-            <div class="mb-6">
-                <label for="password" class="block text-sm font-medium text-gray-700 mb-2">Mot de passe</label>
-                <input type="password" name="password" id="password" required
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent @error('password') border-red-500 @enderror">
-                @error('password')
-                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                @enderror
-            </div>
+            <form method="POST" action="{{ route('login') }}" class="space-y-6">
+                @csrf
 
-            <!-- Remember Me -->
-            <div class="mb-6 flex items-center">
-                <input type="checkbox" name="remember" id="remember" class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
-                <label for="remember" class="ml-2 text-sm text-gray-600">Se souvenir de moi</label>
-            </div>
+                <div class="gsap-stagger">
+                    <label for="email" class="block text-sm font-bold text-slate-700 mb-2">
+                        Email
+                    </label>
+                    <div class="relative group">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <i class="fas fa-envelope text-slate-400 group-focus-within:text-slate-900 transition-colors"></i>
+                        </div>
+                        <input id="email" type="email" name="email" value="{{ old('email') }}" required autofocus
+                               class="w-full pl-11 pr-4 py-3.5 bg-slate-50/50 border border-slate-200 rounded-xl focus:bg-white focus:border-slate-900 focus:ring-4 focus:ring-slate-900/10 transition-all duration-300 text-slate-900 font-medium placeholder-slate-400"
+                               placeholder="votre@email.com">
+                    </div>
+                    @error('email')
+                        <p class="text-red-500 text-sm mt-2 font-medium flex items-center gap-1"><i class="fas fa-exclamation-circle"></i> {{ $message }}</p>
+                    @enderror
+                </div>
 
-            <button type="submit" class="w-full btn-primary text-white py-3 rounded-lg font-semibold">
-                Se connecter
-            </button>
-        </form>
+                <div class="gsap-stagger">
+                    <label for="password" class="block text-sm font-bold text-slate-700 mb-2">
+                        Mot de passe
+                    </label>
+                    <div class="relative group">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <i class="fas fa-lock text-slate-400 group-focus-within:text-slate-900 transition-colors"></i>
+                        </div>
+                        <input id="password" type="password" name="password" required
+                               class="w-full pl-11 pr-4 py-3.5 bg-slate-50/50 border border-slate-200 rounded-xl focus:bg-white focus:border-slate-900 focus:ring-4 focus:ring-slate-900/10 transition-all duration-300 text-slate-900 font-medium placeholder-slate-400"
+                               placeholder="••••••••">
+                    </div>
+                    @error('password')
+                        <p class="text-red-500 text-sm mt-2 font-medium flex items-center gap-1"><i class="fas fa-exclamation-circle"></i> {{ $message }}</p>
+                    @enderror
+                </div>
 
-        <p class="text-center text-gray-500 mt-6">
-            Pas encore de compte ? 
-            <a href="{{ route('register') }}" class="text-purple-600 hover:text-purple-700 font-medium">S'inscrire</a>
-        </p>
+                <div class="flex items-center justify-between gsap-stagger">
+                    <label class="flex items-center gap-3 text-sm font-medium text-slate-600 cursor-pointer group">
+                        <div class="relative flex items-center">
+                            <input type="checkbox" name="remember" class="peer w-5 h-5 rounded border-slate-300 text-slate-900 focus:ring-slate-900/20 transition-all cursor-pointer">
+                        </div>
+                        <span class="group-hover:text-slate-900 transition-colors">Se souvenir de moi</span>
+                    </label>
+                </div>
+
+                <div class="pt-2 gsap-stagger">
+                    <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white py-4 rounded-xl font-bold flex items-center justify-center gap-3 text-lg transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl hover:shadow-slate-900/20 active:translate-y-0">
+                        Se connecter <i class="fas fa-arrow-right text-sm"></i>
+                    </button>
+                </div>
+
+                <div class="relative my-8 gsap-stagger">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full border-t border-slate-200"></div>
+                    </div>
+                    <div class="relative flex justify-center text-sm">
+                        <span class="px-4 bg-white text-slate-400 font-bold tracking-widest uppercase">Ou</span>
+                    </div>
+                </div>
+
+                <div class="gsap-stagger">
+                    <a href="{{ route('google.redirect') }}" class="w-full flex items-center justify-center gap-4 bg-white border-2 border-slate-200 hover:border-slate-900 hover:bg-slate-50 text-slate-900 py-4 rounded-xl font-bold transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl active:translate-y-0">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24">
+                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
+                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                        </svg>
+                        Continuer avec Google
+                    </a>
+                </div>
+
+                <p class="text-center text-sm font-medium text-slate-500 mt-8 gsap-stagger">
+                    Pas encore de compte ?
+                    <a href="{{ route('register') }}" class="text-slate-900 hover:text-slate-700 font-bold underline decoration-2 decoration-slate-300 hover:decoration-slate-900 transition-all underline-offset-4">Créer un accès</a>
+                </p>
+            </form>
+        </div>
     </div>
 </div>
+
+@push('scripts')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        gsap.fromTo(".gsap-stagger", 
+            { y: 30, opacity: 0 }, 
+            { y: 0, opacity: 1, duration: 0.8, stagger: 0.1, ease: "power3.out", delay: 0.1 }
+        );
+    });
+</script>
+@endpush
 @endsection

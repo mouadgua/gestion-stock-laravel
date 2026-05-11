@@ -13,11 +13,24 @@ class UserController extends Controller
     /**
      * Display a listing of the users.
      */
-    public function index(): View
+    public function index(Request $request): View
     {
-        $users = User::where('role', 'client')
-            ->orderByDesc('created_at')
-            ->paginate(15);
+        $query = User::query();
+
+        // Filter by search
+        if ($search = $request->input('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        // Filter by role
+        if ($role = $request->input('role')) {
+            $query->where('role', $role);
+        }
+
+        $users = $query->orderByDesc('created_at')->paginate(15);
 
         return view('admin.users.index', compact('users'));
     }

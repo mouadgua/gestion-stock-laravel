@@ -3,212 +3,113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reçu #{{ $order->id_commande }}</title>
+    <title>Reçu #{{ $order->id_commande }} - The Vault</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        .receipt {
-            border: 2px solid #667eea;
-            border-radius: 10px;
-            padding: 30px;
-            background: #fff;
-        }
-        .header {
-            text-align: center;
-            border-bottom: 2px dashed #ddd;
-            padding-bottom: 20px;
-            margin-bottom: 20px;
-        }
-        .header h1 {
-            color: #667eea;
-            font-size: 24px;
-            margin-bottom: 5px;
-        }
-        .header .subtitle {
-            color: #666;
-            font-size: 14px;
-        }
-        .info-section {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 20px;
-        }
-        .info-box {
-            flex: 1;
-            padding: 15px;
-            background: #f9fafb;
-            border-radius: 8px;
-            margin: 0 10px;
-        }
-        .info-box:first-child {
-            margin-left: 0;
-        }
-        .info-box:last-child {
-            margin-right: 0;
-        }
-        .info-box h3 {
-            color: #667eea;
-            font-size: 14px;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-        }
-        .info-box p {
-            font-size: 13px;
-            margin: 3px 0;
-        }
-        .items-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-        }
-        .items-table th {
-            background: #667eea;
-            color: white;
-            padding: 12px;
-            text-align: left;
-            font-size: 13px;
-            text-transform: uppercase;
-        }
-        .items-table td {
-            padding: 12px;
-            border-bottom: 1px solid #eee;
-            font-size: 14px;
-        }
-        .items-table tr:last-child td {
-            border-bottom: none;
-        }
-        .items-table .total-row {
-            background: #f9fafb;
-            font-weight: bold;
-        }
-        .items-table .total-row td {
-            font-size: 16px;
-            color: #667eea;
-        }
-        .footer {
-            text-align: center;
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 2px dashed #ddd;
-        }
-        .footer p {
-            font-size: 12px;
-            color: #666;
-            margin: 5px 0;
-        }
-        .qr-code {
-            text-align: center;
-            margin: 20px 0;
-        }
-        .qr-code img {
-            max-width: 120px;
-            height: auto;
-        }
-        .status-badge {
-            display: inline-block;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-        .status-en_attente { background: #fef3c7; color: #92400e; }
-        .status-expediee { background: #dbeafe; color: #1e40af; }
-        .status-livree { background: #d1fae5; color: #065f46; }
-        .status-annulee { background: #fee2e2; color: #991b1b; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;900&display=swap');
+        * { font-family: 'Inter', sans-serif; }
+        
         @media print {
-            body { padding: 0; }
-            .no-print { display: none; }
+            body { background: white !important; padding: 0 !important; }
+            .no-print { display: none !important; }
+            .print-area { box-shadow: none !important; border: none !important; max-width: 100% !important; padding: 0 !important; }
         }
     </style>
 </head>
-<body>
-    <div class="no-print" style="text-align: center; margin-bottom: 20px;">
-        <button onclick="window.print()" style="background: #667eea; color: white; border: none; padding: 12px 30px; border-radius: 8px; cursor: pointer; font-size: 14px;">
-            🖨️ Imprimer le reçu
+<body class="bg-slate-100 min-h-screen p-4 md:p-8 flex flex-col items-center">
+    
+    <div class="no-print w-full max-w-3xl flex justify-between items-center mb-8">
+        <a href="{{ route('client.orders.show', $order) }}" class="text-xs font-bold text-slate-500 uppercase tracking-widest hover:text-slate-900 transition-colors inline-flex items-center gap-2">
+            <i class="fas fa-arrow-left"></i> Retour
+        </a>
+        <button onclick="window.print()" class="bg-slate-900 text-white font-black uppercase tracking-widest px-6 py-3 hover:bg-slate-800 transition-colors inline-flex items-center gap-2">
+            <i class="fas fa-print"></i> Imprimer
         </button>
-        <a href="{{ route('client.orders.show', $order) }}" style="margin-left: 10px; color: #667eea; text-decoration: none;">Retour</a>
     </div>
 
-    <div class="receipt">
-        <div class="header">
-            <h1>🛒 Boutique Virtuelle</h1>
-            <p class="subtitle">Reçu de commande</p>
-        </div>
-
-        <div class="info-section">
-            <div class="info-box">
-                <h3>📋 Informations</h3>
-                <p><strong>N° Commande :</strong> #{{ $order->id_commande }}</p>
-                <p><strong>Date :</strong> {{ \Carbon\Carbon::parse($order->date_commande)->format('d/m/Y à H:i') }}</p>
-                <p>
-                    <strong>Statut :</strong> 
-                    <span class="status-badge status-{{ $order->statut }}">
-                        {{ ucfirst(str_replace('_', ' ', $order->statut)) }}
-                    </span>
-                </p>
+    <div class="print-area w-full max-w-3xl bg-white border border-slate-200 shadow-2xl p-10 md:p-16">
+        
+        <div class="flex justify-between items-end border-b-4 border-slate-900 pb-8 mb-10">
+            <div>
+                <h1 class="text-4xl font-black text-slate-900 tracking-tighter uppercase leading-none">THE VAULT.</h1>
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-2">Reçu d'acquisition sécurisée</p>
             </div>
-            <div class="info-box">
-                <h3>👤 Client</h3>
-                <p><strong>{{ $order->user->name }}</strong></p>
-                <p>{{ $order->user->email }}</p>
-                <p>{{ $order->user->telephone ?? '' }}</p>
+            <div class="text-right">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Document N°</p>
+                <p class="text-2xl font-black text-slate-900 tracking-tight">#{{ $order->id_commande }}</p>
             </div>
         </div>
 
-        <table class="items-table">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12 bg-slate-50 p-6 border border-slate-200">
+            <div>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Date</p>
+                <p class="text-sm font-black text-slate-900">{{ $order->created_at->format('d/m/Y') }}</p>
+            </div>
+            <div>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Heure</p>
+                <p class="text-sm font-black text-slate-900">{{ $order->created_at->format('H:i') }}</p>
+            </div>
+            <div>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Membre</p>
+                <p class="text-sm font-black text-slate-900 uppercase">{{ auth()->user()->name }}</p>
+            </div>
+            <div class="text-left md:text-right">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Statut</p>
+                <p class="text-sm font-black text-slate-900 uppercase">{{ str_replace('_', ' ', $order->statut) }}</p>
+            </div>
+        </div>
+
+        <table class="w-full mb-12">
             <thead>
-                <tr>
-                    <th>Produit</th>
-                    <th>Qté</th>
-                    <th>Prix unit.</th>
-                    <th>Total</th>
+                <tr class="border-b-2 border-slate-900">
+                    <th class="py-4 text-left text-xs font-bold text-slate-400 uppercase tracking-widest">Désignation</th>
+                    <th class="py-4 text-center text-xs font-bold text-slate-400 uppercase tracking-widest">Qté</th>
+                    <th class="py-4 text-right text-xs font-bold text-slate-400 uppercase tracking-widest">Montant</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach($order->items as $item)
-                    <tr>
-                        <td>{{ $item->product->nom_produit }}</td>
-                        <td>{{ $item->quantite }}</td>
-                        <td>{{ number_format($item->sous_total / $item->quantite, 2) }} €</td>
-                        <td>{{ number_format($item->sous_total, 2) }} €</td>
-                    </tr>
-                @endforeach
-                <tr class="total-row">
-                    <td colspan="3" style="text-align: right;">TOTAL</td>
-                    <td>{{ number_format($order->total, 2) }} €</td>
+                <tr class="border-b border-slate-200">
+                    <td class="py-6">
+                        <p class="font-black text-slate-900 uppercase text-sm">{{ $item->product->nom_produit }}</p>
+                    </td>
+                    <td class="py-6 text-center text-sm font-bold text-slate-500">
+                        {{ $item->quantite }}
+                    </td>
+                    <td class="py-6 text-right font-black text-slate-900 whitespace-nowrap text-sm">
+                        {{ number_format($item->prix_unitaire * $item->quantite, 2) }} DH
+                    </td>
                 </tr>
+                @endforeach
             </tbody>
         </table>
 
-        <div class="info-section">
-            <div class="info-box">
-                <h3>📍 Livraison</h3>
-                <p>{{ $order->adresse_livraison ?? $order->user->adresse ?? 'Non renseignée' }}</p>
-            </div>
-            <div class="info-box">
-                <h3>💳 Paiement</h3>
-                <p><strong>Mode :</strong> À la livraison</p>
-                <p><strong>Statut :</strong> <span style="color: green;">Payé</span></p>
+        <div class="flex justify-end border-t-4 border-slate-900 pt-6">
+            <div class="w-full md:w-1/2">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">Sous-total</span>
+                    <span class="text-sm font-black text-slate-900">{{ number_format($order->total, 2) }} DH</span>
+                </div>
+                <div class="flex justify-between items-center mb-6 border-b border-slate-200 pb-4">
+                    <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">TVA / Taxes</span>
+                    <span class="text-sm font-black text-slate-900">Incluses</span>
+                </div>
+                <div class="flex justify-between items-end">
+                    <span class="text-lg font-black text-slate-900 uppercase tracking-tighter">Total Net</span>
+                    <span class="text-3xl font-black text-slate-900 tracking-tighter">{{ number_format($order->total, 2) }} DH</span>
+                </div>
             </div>
         </div>
 
-        <div class="footer">
-            <p><strong>Merci pour votre achat !</strong></p>
-            <p>Pour toute question, contactez-nous à support@boutique.com</p>
-            <p style="margin-top: 15px; font-size: 11px; color: #999;">
-                Ce document fait office de justificatif d'achat. Conservez-le précieusement.
+        <div class="mt-16 pt-8 border-t border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left">
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                The Vault - Service Conciergerie<br>
+                Contact: support@thevault.com
+            </p>
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center md:text-right">
+                Document généré électroniquement<br>
+                Toute reproduction est interdite
             </p>
         </div>
     </div>

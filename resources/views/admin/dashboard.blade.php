@@ -1,146 +1,259 @@
 @extends('layouts.app')
 
-@section('title', 'Dashboard Admin - Boutique Virtuelle')
+@section('title', 'Dashboard Admin - The Vault')
 
 @section('content')
-<div class="mb-6">
-    <h1 class="text-3xl font-bold text-gray-900">Tableau de bord</h1>
-    <p class="text-gray-500 mt-1">Bienvenue dans l'espace administrateur</p>
+<div class="mb-12 gsap-fade-up">
+    <span class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 block">Administration</span>
+    <h1 class="text-5xl md:text-7xl font-black text-slate-900 tracking-tighter uppercase leading-none">
+        Dashboard.
+    </h1>
 </div>
 
-<!-- Statistics Cards -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-    <!-- Total Orders -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-sm text-gray-500 mb-1">Commandes totales</p>
-                <p class="text-2xl font-bold text-gray-900">{{ $totalOrders }}</p>
-            </div>
-            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
-                </svg>
-            </div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12 gsap-fade-up">
+    <div class="bg-blue-600 text-white p-8 relative overflow-hidden group">
+        <div class="relative z-10">
+            <p class="text-xs font-bold uppercase tracking-widest mb-2 opacity-80">Produits</p>
+            <p class="text-5xl font-black tracking-tighter mb-4">{{ $totalProducts }}</p>
+            <p class="text-[10px] font-bold uppercase tracking-widest bg-white/20 inline-block px-3 py-1.5">{{ $activeProducts }} actifs</p>
         </div>
+        <i class="fas fa-cubes absolute -bottom-6 -right-4 text-8xl opacity-20 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500"></i>
     </div>
 
-    <!-- Pending Orders -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-sm text-gray-500 mb-1">En attente</p>
-                <p class="text-2xl font-bold text-yellow-600">{{ $pendingOrders }}</p>
-            </div>
-            <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
-                <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-            </div>
+    <div class="bg-purple-600 text-white p-8 relative overflow-hidden group">
+        <div class="relative z-10">
+            <p class="text-xs font-bold uppercase tracking-widest mb-2 opacity-80">Commandes</p>
+            <p class="text-5xl font-black tracking-tighter mb-4">{{ $totalOrders }}</p>
+            <p class="text-[10px] font-bold uppercase tracking-widest bg-white/20 inline-block px-3 py-1.5">{{ $pendingOrders }} en attente</p>
         </div>
+        <i class="fas fa-shopping-bag absolute -bottom-6 -right-4 text-8xl opacity-20 group-hover:scale-110 group-hover:-rotate-6 transition-all duration-500"></i>
     </div>
 
-    <!-- Total Revenue -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-sm text-gray-500 mb-1">Chiffre d'affaires</p>
-                <p class="text-2xl font-bold text-green-600">{{ number_format($totalRevenue, 2) }} €</p>
-            </div>
-            <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-            </div>
+    <div class="bg-emerald-600 text-white p-8 relative overflow-hidden group">
+        <div class="relative z-10">
+            <p class="text-xs font-bold uppercase tracking-widest mb-2 opacity-80">Clients</p>
+            <p class="text-5xl font-black tracking-tighter mb-4">{{ $totalCustomers }}</p>
+            <p class="text-[10px] font-bold uppercase tracking-widest bg-white/20 inline-block px-3 py-1.5">{{ $totalAdmins }} admins</p>
         </div>
+        <i class="fas fa-users absolute -bottom-6 -right-4 text-8xl opacity-20 group-hover:scale-110 transition-all duration-500"></i>
     </div>
 
-    <!-- Low Stock Alert -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-sm text-gray-500 mb-1">Alerte stock faible</p>
-                <p class="text-2xl font-bold text-red-600">{{ $lowStockProducts }}</p>
-            </div>
-            <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
-                <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                </svg>
-            </div>
+    <div class="bg-orange-500 text-white p-8 relative overflow-hidden group">
+        <div class="relative z-10">
+            <p class="text-xs font-bold uppercase tracking-widest mb-2 opacity-80">Chiffre d'Affaires</p>
+            <p class="text-5xl font-black tracking-tighter mb-4 whitespace-nowrap">{{ number_format($totalRevenue, 0) }}<span class="text-2xl ml-1">€</span></p>
+            <p class="text-[10px] font-bold uppercase tracking-widest bg-white/20 inline-block px-3 py-1.5">{{ $deliveredOrders }} livrées</p>
         </div>
+        <i class="fas fa-euro-sign absolute -bottom-6 -right-4 text-8xl opacity-20 group-hover:scale-110 transition-all duration-500"></i>
     </div>
 </div>
 
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-    <!-- Recent Orders -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-        <h2 class="text-xl font-bold text-gray-900 mb-4">Commandes récentes</h2>
+<div class="grid grid-cols-2 md:grid-cols-4 border-y-4 border-slate-900 py-8 mb-16 gap-y-8 gsap-fade-up bg-white">
+    <div class="flex items-center gap-4 px-4 border-r border-slate-200">
+        <div class="w-14 h-14 bg-red-50 text-red-600 flex items-center justify-center text-2xl shrink-0"><i class="fas fa-exclamation-triangle"></i></div>
+        <div>
+            <p class="text-3xl font-black text-slate-900 leading-none">{{ $lowStockProducts }}</p>
+            <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Stock faible</p>
+        </div>
+    </div>
+    <div class="flex items-center gap-4 px-4 border-r-0 md:border-r border-slate-200">
+        <div class="w-14 h-14 bg-amber-50 text-amber-500 flex items-center justify-center text-2xl shrink-0"><i class="fas fa-stop-circle"></i></div>
+        <div>
+            <p class="text-3xl font-black text-slate-900 leading-none">{{ $outOfStockProducts }}</p>
+            <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Ruptures</p>
+        </div>
+    </div>
+    <div class="flex items-center gap-4 px-4 border-r border-slate-200 mt-8 md:mt-0 pt-8 md:pt-0 border-t md:border-t-0">
+        <div class="w-14 h-14 bg-indigo-50 text-indigo-600 flex items-center justify-center text-2xl shrink-0"><i class="fas fa-star"></i></div>
+        <div>
+            <p class="text-3xl font-black text-slate-900 leading-none">{{ $totalReviews }}</p>
+            <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Avis totaux</p>
+        </div>
+    </div>
+    <div class="flex items-center gap-4 px-4 mt-8 md:mt-0 pt-8 md:pt-0 border-t md:border-t-0 border-slate-200">
+        <div class="w-14 h-14 bg-cyan-50 text-cyan-600 flex items-center justify-center text-2xl shrink-0"><i class="fas fa-history"></i></div>
+        <div>
+            <p class="text-3xl font-black text-slate-900 leading-none">{{ $totalLogs }}</p>
+            <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Activités</p>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-12">
+    <div class="gsap-fade-up">
+        <h2 class="text-2xl font-black text-slate-900 uppercase tracking-tight border-b-4 border-purple-600 pb-4 mb-6 flex items-center gap-3">
+            <i class="fas fa-truck text-purple-600"></i> Acquisitions
+        </h2>
+        
         @if($recentOrders->count() > 0)
-            <div class="overflow-x-auto">
-                <table class="w-full">
-                    <thead>
-                        <tr class="text-left text-sm text-gray-500 border-b">
-                            <th class="pb-3 font-medium">Commande</th>
-                            <th class="pb-3 font-medium">Client</th>
-                            <th class="pb-3 font-medium">Total</th>
-                            <th class="pb-3 font-medium">Statut</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($recentOrders as $order)
-                            <tr class="border-b border-gray-50 last:border-0">
-                                <td class="py-3 text-sm font-medium">#{{ $order->id_commande }}</td>
-                                <td class="py-3 text-sm text-gray-600">{{ $order->user->name }}</td>
-                                <td class="py-3 text-sm font-semibold">{{ number_format($order->total, 2) }} €</td>
-                                <td class="py-3">
-                                    <span class="px-2 py-1 text-xs rounded-full
-                                        @if($order->statut == 'en_attente') bg-yellow-100 text-yellow-800
-                                        @elseif($order->statut == 'expediee') bg-blue-100 text-blue-800
-                                        @elseif($order->statut == 'livree') bg-green-100 text-green-800
-                                        @else bg-red-100 text-red-800
-                                        @endif">
-                                        {{ ucfirst(str_replace('_', ' ', $order->statut)) }}
-                                    </span>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-            <a href="{{ route('admin.orders.index') }}" class="mt-4 inline-block text-purple-600 hover:text-purple-700 text-sm font-medium">
-                Voir toutes les commandes →
-            </a>
-        @else
-            <p class="text-gray-500 text-center py-8">Aucune commande récente.</p>
-        @endif
-    </div>
-
-    <!-- Top Products -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-        <h2 class="text-xl font-bold text-gray-900 mb-4">Produits les plus vendus</h2>
-        @if($topProducts->count() > 0)
-            <div class="space-y-4">
-                @foreach($topProducts as $product)
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center space-x-3">
-                            <img src="{{ $product->image ?? 'https://via.placeholder.com/40' }}" 
-                                 alt="{{ $product->nom_produit }}" 
-                                 class="w-10 h-10 rounded-lg object-cover">
+            <div class="flex flex-col">
+                @foreach($recentOrders as $order)
+                    <div class="flex items-center justify-between py-4 border-b border-slate-100 hover:bg-slate-50 transition-colors px-2 -mx-2">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 bg-slate-900 text-white font-black flex items-center justify-center text-xs shrink-0">
+                                {{ substr($order->user->name, 0, 1) }}
+                            </div>
                             <div>
-                                <p class="font-medium text-gray-900 text-sm">{{ $product->nom_produit }}</p>
-                                <p class="text-xs text-gray-500">{{ number_format($product->prix, 2) }} €</p>
+                                <p class="font-black text-slate-900 text-sm uppercase">#{{ $order->id_commande }}</p>
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">{{ $order->user->name }}</p>
                             </div>
                         </div>
-                        <span class="text-sm font-semibold text-gray-600">{{ $product->order_items_count }} vendus</span>
+                        <div class="text-right">
+                            <p class="font-black text-slate-900 text-base">{{ number_format($order->total, 2) }} DH</p>
+                            <span class="text-[9px] font-black uppercase tracking-widest px-2 py-1 mt-1 inline-block
+                                @if($order->statut == 'en_attente') bg-amber-100 text-amber-900 
+                                @elseif($order->statut == 'livree') bg-emerald-100 text-emerald-900 
+                                @else bg-slate-200 text-slate-900 @endif">
+                                {{ str_replace('_', ' ', $order->statut) }}
+                            </span>
+                        </div>
                     </div>
                 @endforeach
             </div>
-            <a href="{{ route('admin.products.index') }}" class="mt-4 inline-block text-purple-600 hover:text-purple-700 text-sm font-medium">
-                Voir tous les produits →
-            </a>
         @else
-            <p class="text-gray-500 text-center py-8">Aucun produit vendu pour le moment.</p>
+            <p class="text-slate-500 text-sm font-bold uppercase tracking-widest py-8">Aucune commande</p>
+        @endif
+    </div>
+
+    <div class="gsap-fade-up">
+        <h2 class="text-2xl font-black text-slate-900 uppercase tracking-tight border-b-4 border-blue-600 pb-4 mb-6 flex items-center gap-3">
+            <i class="fas fa-fire text-blue-600"></i> Top Objets
+        </h2>
+        
+        @if($topProducts->count() > 0)
+            <div class="flex flex-col">
+                @foreach($topProducts as $product)
+                    <div class="flex items-center justify-between py-4 border-b border-slate-100 hover:bg-slate-50 transition-colors px-2 -mx-2">
+                        <div class="flex items-center gap-4">
+                            <img src="{{ $product->image ?? 'https://via.placeholder.com/40' }}" class="w-10 h-12 object-cover bg-slate-100 shrink-0">
+                            <div>
+                                <p class="font-black text-slate-900 text-sm uppercase leading-tight line-clamp-1">{{ $product->nom_produit }}</p>
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">{{ number_format($product->prix, 2) }} DH</p>
+                            </div>
+                        </div>
+                        <span class="bg-blue-100 text-blue-700 text-[10px] font-black uppercase tracking-widest px-3 py-1.5 shrink-0">
+                            {{ $product->order_items_count }} vendus
+                        </span>
+                    </div>
+                @endforeach
+            </div>
+        @else
+            <p class="text-slate-500 text-sm font-bold uppercase tracking-widest py-8">Aucune vente</p>
         @endif
     </div>
 </div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-12">
+    <div class="gsap-fade-up">
+        <h2 class="text-2xl font-black text-slate-900 uppercase tracking-tight border-b-4 border-emerald-600 pb-4 mb-6 flex items-center gap-3">
+            <i class="fas fa-users text-emerald-600"></i> Nouveaux Membres
+        </h2>
+        <div class="flex flex-col">
+            @foreach($recentUsers as $user)
+                <div class="flex items-center justify-between py-4 border-b border-slate-100 hover:bg-slate-50 transition-colors px-2 -mx-2">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 bg-emerald-100 text-emerald-700 font-black flex items-center justify-center text-xs shrink-0">
+                            {{ substr($user->name, 0, 1) }}
+                        </div>
+                        <div>
+                            <p class="font-black text-slate-900 text-sm uppercase">{{ $user->name }}</p>
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">{{ $user->email }}</p>
+                        </div>
+                    </div>
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{{ $user->created_at->format('d/m/Y') }}</span>
+                </div>
+            @endforeach
+        </div>
+    </div>
+
+    <div class="gsap-fade-up">
+        <h2 class="text-2xl font-black text-slate-900 uppercase tracking-tight border-b-4 border-cyan-600 pb-4 mb-6 flex items-center gap-3">
+            <i class="fas fa-clock text-cyan-600"></i> Flux d'activités
+        </h2>
+        <div class="flex flex-col">
+            @foreach($recentLogs as $log)
+                <div class="flex items-center justify-between py-4 border-b border-slate-100 hover:bg-slate-50 transition-colors px-2 -mx-2">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 bg-slate-100 text-slate-600 font-black flex items-center justify-center text-xs shrink-0">
+                            {{ substr($log->user->name ?? 'S', 0, 1) }}
+                        </div>
+                        <div>
+                            <p class="font-black text-slate-900 text-sm uppercase">{{ $log->user->name ?? 'Système' }}</p>
+                            <p class="text-xs font-bold text-slate-500 uppercase tracking-widest line-clamp-1">{{ $log->description ?? $log->action }}</p>
+                        </div>
+                    </div>
+                    <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest shrink-0">{{ $log->created_at->diffForHumans() }}</span>
+                </div>
+            @endforeach
+        </div>
+    </div>
+</div>
+
+<div class="mb-16 gsap-fade-up">
+    <h2 class="text-2xl font-black text-slate-900 uppercase tracking-tight border-b-4 border-yellow-400 pb-4 mb-6 flex items-center gap-3">
+        <i class="fas fa-star text-yellow-500"></i> Dernières Évaluations
+    </h2>
+    
+    @if($recentReviews->count() > 0)
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            @foreach($recentReviews as $review)
+                <div class="bg-slate-50 p-6 border border-slate-200 relative">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 bg-slate-900 text-white font-black flex items-center justify-center text-xs shrink-0">
+                                {{ substr($review->user->name, 0, 1) }}
+                            </div>
+                            <p class="font-black text-slate-900 text-sm uppercase">{{ $review->user->name }}</p>
+                        </div>
+                        <div class="flex text-yellow-400 text-xs">
+                            @for($i=1; $i<=5; $i++)
+                                <i class="fas fa-star{{ $i <= $review->rating ? '' : ' text-slate-200' }}"></i>
+                            @endfor
+                        </div>
+                    </div>
+                    <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3 border-b border-slate-200 pb-2 truncate">
+                        {{ $review->product->nom_produit }}
+                    </p>
+                    @if($review->comment)
+                        <p class="text-sm font-medium text-slate-700 italic leading-relaxed line-clamp-3">
+                            "{{ $review->comment }}"
+                        </p>
+                    @endif
+                </div>
+            @endforeach
+        </div>
+    @else
+        <p class="text-slate-500 text-sm font-bold uppercase tracking-widest py-8">Aucun avis</p>
+    @endif
+</div>
+
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 gsap-fade-up">
+    <a href="{{ route('admin.products.index') }}" class="bg-blue-600 text-white p-6 hover:bg-blue-700 transition-colors flex flex-col items-center justify-center gap-3 h-32 group">
+        <i class="fas fa-cubes text-3xl opacity-70 group-hover:scale-110 transition-transform"></i>
+        <span class="text-xs font-black uppercase tracking-widest">Produits</span>
+    </a>
+    <a href="{{ route('admin.orders.index') }}" class="bg-purple-600 text-white p-6 hover:bg-purple-700 transition-colors flex flex-col items-center justify-center gap-3 h-32 group">
+        <i class="fas fa-truck text-3xl opacity-70 group-hover:scale-110 transition-transform"></i>
+        <span class="text-xs font-black uppercase tracking-widest">Commandes</span>
+    </a>
+    <a href="{{ route('admin.users.index') }}" class="bg-emerald-600 text-white p-6 hover:bg-emerald-700 transition-colors flex flex-col items-center justify-center gap-3 h-32 group">
+        <i class="fas fa-users text-3xl opacity-70 group-hover:scale-110 transition-transform"></i>
+        <span class="text-xs font-black uppercase tracking-widest">Utilisateurs</span>
+    </a>
+    <a href="{{ route('admin.activity-logs.export') }}" class="bg-slate-900 text-white p-6 hover:bg-slate-800 transition-colors flex flex-col items-center justify-center gap-3 h-32 group">
+        <i class="fas fa-download text-3xl opacity-70 group-hover:scale-110 transition-transform"></i>
+        <span class="text-xs font-black uppercase tracking-widest">Export CSV</span>
+    </a>
+</div>
+
+@push('scripts')
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        gsap.fromTo(".gsap-fade-up", 
+            { y: 30, opacity: 0 }, 
+            { y: 0, opacity: 1, duration: 0.8, stagger: 0.1, ease: "power3.out" }
+        );
+    });
+</script>
+@endpush
 @endsection

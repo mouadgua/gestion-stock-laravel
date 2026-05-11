@@ -19,6 +19,8 @@ class User extends Authenticatable
         'role',
         'telephone',
         'adresse',
+        'google_id',
+        'avatar',
     ];
 
     protected $hidden = [
@@ -56,6 +58,6 @@ class User extends Authenticatable
 
     public function isClient(): bool
     {
-        return $this->role === 'client';
+        return $this->role === 'acheteur' || $this->role === 'livreur';
     }
 }

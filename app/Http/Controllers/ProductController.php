@@ -6,6 +6,7 @@ use App\Models\Product;
 use App\Models\Category;
 use App\Models\Review;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ProductController extends Controller
 {
@@ -16,7 +17,7 @@ class ProductController extends Controller
     {
         $query = Product::where('est_actif', true)
             ->where('stock', '>', 0)
-            ->with('categorie');
+            ->with(['categorie', 'images']);
 
         // Search by name
         if ($request->filled('search')) {
@@ -46,9 +47,16 @@ class ProductController extends Controller
         }
 
         $products = $query->paginate(12)->withQueryString();
-        $categories = Category::has('products')->get();
+        $categories = Category::withCount(['products' => function ($q) {
+            $q->where('est_actif', true)->where('stock', '>', 0);
+        }])->has('products')->get();
 
-        return view('products.index', compact('products', 'categories'));
+        $wishlistIds = [];
+        if (Auth::check()) {
+            $wishlistIds = Auth::user()->wishlistProducts()->pluck('products.id_produit')->toArray();
+        }
+
+        return view('products.index', compact('products', 'categories', 'wishlistIds'));
     }
 
     /**
@@ -60,10 +68,13 @@ class ProductController extends Controller
             abort(404);
         }
 
+        $product->load('images');
+
         $relatedProducts = Product::where('est_actif', true)
             ->where('id_produit', '!=', $product->id_produit)
             ->where('categorie_id', $product->categorie_id)
             ->where('stock', '>', 0)
+            ->with('images')
             ->limit(4)
             ->get();
 
@@ -79,12 +90,16 @@ class ProductController extends Controller
 
         // Check if current user has already reviewed
         $hasReviewed = false;
-        if (auth()->check()) {
+        $isInWishlist = false;
+        if (Auth::check()) {
             $hasReviewed = Review::where('product_id', $product->id_produit)
-                ->where('user_id', auth()->id())
+                ->where('user_id', Auth::id())
+                ->exists();
+            $isInWishlist = Auth::user()->wishlistProducts()
+                ->where('products.id_produit', $product->id_produit)
                 ->exists();
         }
 
-        return view('products.show', compact('product', 'relatedProducts', 'reviews', 'averageRating', 'hasReviewed'));
+        return view('products.show', compact('product', 'relatedProducts', 'reviews', 'averageRating', 'hasReviewed', 'isInWishlist'));
     }
 }

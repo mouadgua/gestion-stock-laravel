@@ -2,12 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\OrderReceipt;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\Promotion;
 use App\Observers\OrderObserver;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\View\View;
 use Exception;
 
@@ -23,9 +27,9 @@ class CartController extends Controller
         $total = 0;
 
         foreach ($cart as $productId => $quantity) {
-            $product = Product::with('categorie')->find($productId);
+            $product = Product::with(['categorie', 'images'])->find($productId);
             if ($product && $product->isAvailable()) {
-                $subtotal = $product->prix * $quantity;
+                $subtotal = $product->finalPrice * $quantity;
                 $products[] = [
                     'product' => $product,
                     'quantity' => $quantity,
@@ -135,6 +139,53 @@ class CartController extends Controller
     }
 
     /**
+     * Apply a promo code to the cart.
+     */
+    public function applyPromo(Request $request): RedirectResponse
+    {
+        $request->validate(['promo_code' => ['required', 'string']]);
+
+        $code = strtoupper(trim($request->promo_code));
+        $promo = Promotion::where('code', $code)->first();
+
+        if (!$promo || !$promo->isValid()) {
+            return back()->withErrors(['promo_code' => 'Code promo invalide ou expiré.']);
+        }
+
+        $cart = $request->session()->get('cart', []);
+        $total = 0;
+        foreach ($cart as $productId => $quantity) {
+            $product = Product::find($productId);
+            if ($product) {
+                $total += $product->finalPrice * $quantity;
+            }
+        }
+
+        $discount = $promo->calculateDiscount($total);
+        if ($discount <= 0) {
+            return back()->withErrors(['promo_code' => "Montant minimum non atteint ({$promo->min_order_amount} DH requis)."]);
+        }
+
+        $request->session()->put('cart_promo', [
+            'code' => $promo->code,
+            'discount' => $discount,
+            'type' => $promo->discount_type,
+            'value' => $promo->discount_value,
+        ]);
+
+        return back()->with('success', "Code promo appliqué : -{$discount} DH");
+    }
+
+    /**
+     * Remove applied promo code from cart.
+     */
+    public function removePromo(Request $request): RedirectResponse
+    {
+        $request->session()->forget('cart_promo');
+        return back()->with('success', 'Code promo retiré.');
+    }
+
+    /**
      * Show the checkout page with payment selection.
      */
     public function checkoutPage(Request $request): View|RedirectResponse
@@ -144,9 +195,9 @@ class CartController extends Controller
         $total = 0;
 
         foreach ($cart as $productId => $quantity) {
-            $product = Product::with('categorie')->find($productId);
+            $product = Product::with(['categorie', 'images'])->find($productId);
             if ($product && $product->isAvailable()) {
-                $subtotal = $product->prix * $quantity;
+                $subtotal = $product->finalPrice * $quantity;
                 $products[] = [
                     'product' => $product,
                     'quantity' => $quantity,
@@ -161,9 +212,16 @@ class CartController extends Controller
                 ->with('error', 'Votre panier est vide.');
         }
 
+        $promo = $request->session()->get('cart_promo');
+        $discount = $promo['discount'] ?? 0;
+        $finalTotal = max(0, $total - $discount);
+
         return view('client.cart.checkout', [
-            'items' => $products,
-            'total' => $total,
+            'items'      => $products,
+            'total'      => $total,
+            'discount'   => $discount,
+            'finalTotal' => $finalTotal,
+            'promo'      => $promo,
         ]);
     }
 
@@ -175,6 +233,7 @@ class CartController extends Controller
         $user = $request->user();
         $cart = $request->session()->get('cart', []);
         $modePaiement = $request->input('mode_paiement', 'cod');
+        $cartPromo = $request->session()->get('cart_promo');
 
         if (empty($cart)) {
             return redirect()->route('client.cart.index')
@@ -207,19 +266,35 @@ class CartController extends Controller
             OrderObserver::validateStock($items);
 
             // Create order with transaction
+            $discount = $cartPromo['discount'] ?? 0;
             $order = new Order([
-                'user_id' => $user->id,
-                'adresse_livraison' => $user->adresse,
+                'user_id'             => $user->id,
+                'adresse_livraison'   => $user->adresse,
                 'telephone_livraison' => $user->telephone,
-                'statut' => 'en_attente',
-                'mode_paiement' => $modePaiement,
-                'statut_paiement' => $modePaiement === 'cod' ? 'en_attente' : 'en_attente',
+                'statut'              => 'en_attente',
+                'mode_paiement'       => $modePaiement,
+                'statut_paiement'     => 'en_attente',
+                'promo_code'          => $cartPromo['code'] ?? null,
+                'discount'            => $discount,
             ]);
 
             OrderObserver::createOrderWithItems($order, $items);
 
-            // Clear cart
+            // Clear cart and promo
             $request->session()->forget('cart');
+            $request->session()->forget('cart_promo');
+
+            // Increment promo usage
+            if ($cartPromo) {
+                Promotion::where('code', $cartPromo['code'])->increment('used_count');
+            }
+
+            // Send receipt email
+            try {
+                Mail::to($user->email)->send(new OrderReceipt($order));
+            } catch (\Exception $mailException) {
+                Log::warning('Receipt email failed: ' . $mailException->getMessage());
+            }
 
             // If PayPal, redirect to payment processing
             if ($modePaiement === 'paypal') {
@@ -229,7 +304,7 @@ class CartController extends Controller
 
             // If COD, order is created successfully
             return redirect()->route('client.orders.show', $order)
-                ->with('success', 'Commande créée avec succès! Vous paierez à la livraison.');
+                ->with('success', 'Commande créée avec succès! Un reçu a été envoyé par email.');
 
         } catch (Exception $e) {
             return redirect()->back()

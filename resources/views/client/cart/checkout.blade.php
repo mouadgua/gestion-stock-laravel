@@ -23,9 +23,14 @@
         @foreach($items as $item)
             <div class="flex gap-4 py-6 border-b border-slate-100 last:border-b-0">
                 <div class="w-20 h-24 bg-slate-100 shrink-0 overflow-hidden">
-                    <img src="{{ $item['product']->image ?? 'https://via.placeholder.com/200x250' }}"
-                         alt="{{ $item['product']->nom_produit }}"
-                         class="w-full h-full object-cover">
+                    @php $img = $item['product']->firstImage; @endphp
+                    @if($img)
+                        <img src="{{ $img }}" alt="{{ $item['product']->nom_produit }}" class="w-full h-full object-cover">
+                    @else
+                        <div class="w-full h-full flex items-center justify-center text-slate-300">
+                            <i class="fas fa-image text-2xl"></i>
+                        </div>
+                    @endif
                 </div>
                 <div class="flex-1 flex justify-between">
                     <div>
@@ -33,9 +38,19 @@
                         <p class="text-xs font-bold text-slate-400 tracking-widest uppercase mt-1">
                             {{ $item['product']->categorie->nom_categorie ?? 'Standard' }}
                         </p>
-                        <p class="text-xs font-bold text-slate-500 mt-2">x{{ $item['quantity'] }}</p>
+                        <div class="flex items-center gap-2 mt-2">
+                            <p class="text-xs font-bold text-slate-500">x{{ $item['quantity'] }}</p>
+                            @if($item['product']->discount_percent > 0)
+                                <span class="bg-red-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full">-{{ $item['product']->discount_percent }}%</span>
+                            @endif
+                        </div>
                     </div>
-                    <p class="font-black text-slate-900 whitespace-nowrap">{{ number_format($item['subtotal'], 2) }} DH</p>
+                    <div class="text-right">
+                        <p class="font-black text-slate-900 whitespace-nowrap">{{ number_format($item['subtotal'], 2) }} DH</p>
+                        @if($item['product']->discount_percent > 0)
+                            <p class="text-xs text-slate-400 line-through">{{ number_format($item['product']->prix * $item['quantity'], 2) }} DH</p>
+                        @endif
+                    </div>
                 </div>
             </div>
         @endforeach
@@ -51,6 +66,12 @@
                     <span>Sous-total</span>
                     <span class="text-slate-900">{{ number_format($total, 2) }} DH</span>
                 </div>
+                @if(isset($discount) && $discount > 0)
+                    <div class="flex justify-between items-center text-sm font-bold text-emerald-600 uppercase tracking-widest">
+                        <span>Code promo {{ $promo?->code ?? '' }}</span>
+                        <span>-{{ number_format($discount, 2) }} DH</span>
+                    </div>
+                @endif
                 <div class="flex justify-between items-center text-sm font-bold text-slate-500 uppercase tracking-widest">
                     <span>Expédition</span>
                     <span class="text-slate-900">Offerte</span>
@@ -60,7 +81,7 @@
             <div class="border-t border-slate-900 pt-6 mb-8">
                 <div class="flex justify-between items-end">
                     <span class="text-sm font-bold text-slate-900 uppercase tracking-widest">Total</span>
-                    <span class="font-black text-4xl text-slate-900 tracking-tighter">{{ number_format($total, 2) }} <span class="text-xl">DH</span></span>
+                    <span class="font-black text-4xl text-slate-900 tracking-tighter">{{ number_format($finalTotal ?? $total, 2) }} <span class="text-xl">DH</span></span>
                 </div>
             </div>
 

@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
+use App\Http\Controllers\Admin\PromotionController as AdminPromotionController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
@@ -47,6 +48,19 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
+    // Email verification routes
+    Route::get('/email/verify', function () {
+        return view('auth.verify-email');
+    })->name('verification.notice');
+    Route::get('/email/verify/{id}/{hash}', function (\Illuminate\Foundation\Auth\EmailVerificationRequest $request) {
+        $request->fulfill();
+        return redirect()->route('home')->with('success', 'Email vérifié avec succès !');
+    })->middleware('signed')->name('verification.verify');
+    Route::post('/email/verification-notification', function (\Illuminate\Http\Request $request) {
+        $request->user()->sendEmailVerificationNotification();
+        return back()->with('success', 'Lien de vérification renvoyé !');
+    })->middleware('throttle:6,1')->name('verification.send');
+
     // PayPal routes
     Route::get('/paypal/success', [PayPalController::class, 'success'])->name('paypal.success');
     Route::get('/paypal/cancel', [PayPalController::class, 'cancel'])->name('paypal.cancel');
@@ -70,14 +84,16 @@ Route::middleware('auth')->group(function () {
     // Client routes (cart, orders, wishlist, reviews, profile)
     Route::prefix('client')->name('client.')->group(function () {
         Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+        Route::post('/cart/promo', [CartController::class, 'applyPromo'])->name('cart.promo');
+        Route::delete('/cart/promo', [CartController::class, 'removePromo'])->name('cart.promo.remove');
         Route::post('/cart/add/{product}', [CartController::class, 'add'])->name('cart.add');
         Route::patch('/cart/{item}', [CartController::class, 'update'])->name('cart.update');
         Route::delete('/cart/{item}', [CartController::class, 'remove'])->name('cart.remove');
-        Route::get('/cart/checkout', [CartController::class, 'checkoutPage'])->name('cart.checkout');
-        Route::post('/cart/checkout', [CartController::class, 'checkout'])->name('cart.checkout.process');
-        Route::get('/orders', [ClientOrderController::class, 'index'])->name('orders.index');
-        Route::get('/orders/{order}', [ClientOrderController::class, 'show'])->name('orders.show');
-        Route::get('/orders/{order}/receipt', [ClientOrderController::class, 'receipt'])->name('orders.receipt');
+        Route::get('/cart/checkout', [CartController::class, 'checkoutPage'])->middleware('verified')->name('cart.checkout');
+        Route::post('/cart/checkout', [CartController::class, 'checkout'])->middleware('verified')->name('cart.checkout.process');
+        Route::get('/orders', [ClientOrderController::class, 'index'])->middleware('verified')->name('orders.index');
+        Route::get('/orders/{order}', [ClientOrderController::class, 'show'])->middleware('verified')->name('orders.show');
+        Route::get('/orders/{order}/receipt', [ClientOrderController::class, 'receipt'])->middleware('verified')->name('orders.receipt');
         Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
         Route::post('/wishlist/{product}', [WishlistController::class, 'add'])->name('wishlist.add');
         Route::delete('/wishlist/{product}', [WishlistController::class, 'remove'])->name('wishlist.remove');
@@ -98,6 +114,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/products/{product}/edit', [AdminProductController::class, 'edit'])->name('products.edit');
         Route::put('/products/{product}', [AdminProductController::class, 'update'])->name('products.update');
         Route::delete('/products/{product}', [AdminProductController::class, 'destroy'])->name('products.destroy');
+        Route::delete('/products/{product}/images/{image}', [AdminProductController::class, 'destroyImage'])->name('products.images.destroy');
         Route::get('/categories', [AdminCategoryController::class, 'index'])->name('categories.index');
         Route::get('/categories/create', [AdminCategoryController::class, 'create'])->name('categories.create');
         Route::post('/categories', [AdminCategoryController::class, 'store'])->name('categories.store');
@@ -112,5 +129,12 @@ Route::middleware('auth')->group(function () {
         Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
         Route::get('/activity-logs', [App\Http\Controllers\Admin\ActivityLogController::class, 'index'])->name('activity-logs.index');
         Route::get('/activity-logs/export', [App\Http\Controllers\Admin\ActivityLogController::class, 'export'])->name('activity-logs.export');
+        // Promo codes
+        Route::get('/promotions', [AdminPromotionController::class, 'index'])->name('promotions.index');
+        Route::post('/promotions', [AdminPromotionController::class, 'store'])->name('promotions.store');
+        Route::patch('/promotions/{promotion}/toggle', [AdminPromotionController::class, 'toggle'])->name('promotions.toggle');
+        Route::delete('/promotions/{promotion}', [AdminPromotionController::class, 'destroy'])->name('promotions.destroy');
+        // AI product description
+        Route::post('/ai/describe', [App\Http\Controllers\Admin\AiProductController::class, 'describe'])->name('ai.describe');
     });
 });

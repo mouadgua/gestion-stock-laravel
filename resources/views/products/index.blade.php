@@ -77,7 +77,7 @@
                     <div class="bg-white border border-slate-200 rounded-[1.5rem] p-2 hover:shadow-2xl hover:shadow-slate-200/50 hover:border-slate-300 transition-all duration-300 group gsap-product relative flex flex-col h-full">
                         <div class="relative overflow-hidden aspect-[4/3] rounded-[1rem] bg-slate-50">
                             <a href="{{ route('products.show', $product->slug) }}">
-                                <img src="{{ $product->image ?? 'https://via.placeholder.com/400x300?text=' . urlencode($product->nom_produit) }}"
+                                <img src="{{ $product->firstImage ?? 'https://via.placeholder.com/400x300?text=' . urlencode($product->nom_produit) }}"
                                      alt="{{ $product->nom_produit }}"
                                      class="w-full h-full object-cover group-hover:scale-105 transition duration-700">
                             </a>
@@ -86,11 +86,40 @@
                                     <span class="bg-red-500 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-lg">Épuisé</span>
                                 </div>
                             @endif
-                            <div class="absolute top-3 right-3">
-                                <span class="bg-white/95 backdrop-blur-md text-slate-900 font-black px-3 py-1.5 rounded-lg shadow-sm text-sm border border-slate-100/50">
-                                    {{ number_format($product->prix, 2) }} DH
-                                </span>
+                            <div class="absolute top-3 right-3 flex flex-col items-end gap-1">
+                                @if($product->discount_percent > 0)
+                                    <span class="bg-red-500 text-white font-black px-2 py-0.5 rounded-lg shadow-sm text-xs">-{{ $product->discount_percent }}%</span>
+                                    <span class="bg-white/95 backdrop-blur-md text-slate-900 font-black px-3 py-1.5 rounded-lg shadow-sm text-sm border border-slate-100/50">
+                                        {{ number_format($product->finalPrice, 2) }} DH
+                                    </span>
+                                @else
+                                    <span class="bg-white/95 backdrop-blur-md text-slate-900 font-black px-3 py-1.5 rounded-lg shadow-sm text-sm border border-slate-100/50">
+                                        {{ number_format($product->prix, 2) }} DH
+                                    </span>
+                                @endif
                             </div>
+                            @auth
+                                @if(!auth()->user()->isAdmin())
+                                    @php $inWishlist = in_array($product->id_produit, $wishlistIds); @endphp
+                                    @if($inWishlist)
+                                        <form action="{{ route('client.wishlist.remove', $product) }}" method="POST" class="absolute top-3 left-3">
+                                            @csrf @method('DELETE')
+                                            <button type="submit" title="Retirer des favoris"
+                                                class="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center text-white shadow hover:bg-red-600 transition-colors">
+                                                <i class="fas fa-heart text-xs"></i>
+                                            </button>
+                                        </form>
+                                    @else
+                                        <form action="{{ route('client.wishlist.add', $product) }}" method="POST" class="absolute top-3 left-3">
+                                            @csrf
+                                            <button type="submit" title="Ajouter aux favoris"
+                                                class="w-8 h-8 rounded-full bg-white/90 flex items-center justify-center text-slate-400 shadow hover:bg-red-50 hover:text-red-500 transition-colors">
+                                                <i class="fas fa-heart text-xs"></i>
+                                            </button>
+                                        </form>
+                                    @endif
+                                @endif
+                            @endauth
                         </div>
                         
                         <div class="p-4 flex flex-col flex-1">

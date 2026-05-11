@@ -14,7 +14,7 @@
                 <h1 class="text-5xl md:text-7xl font-mono font-black text-slate-900 tracking-tighter uppercase leading-none">
                     #{{ $order->id_commande }}
                 </h1>
-                <p class="font-mono text-sm font-bold text-slate-500 mt-4"><i class="far fa-clock mr-1"></i> {{ \Carbon\Carbon::parse($order->date_commande)->format('d/m/Y - H:i') }}</p>
+                <p class="font-mono text-sm font-bold text-slate-500 mt-4"><i class="far fa-clock mr-1"></i> {{ $order->created_at->format('d/m/Y - H:i') }}</p>
             </div>
             
             <div class="px-6 py-3 border-2 text-xs font-black uppercase tracking-widest text-center
@@ -84,9 +84,12 @@
                 <div class="p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-6 hover:bg-slate-50 transition-colors">
                     <div class="flex items-center gap-6">
                         <div class="w-24 aspect-[4/5] bg-slate-100 overflow-hidden shrink-0 border border-slate-200">
-                            <img src="{{ $item->product->image ?? 'https://via.placeholder.com/150' }}" 
-                                 alt="{{ $item->product->nom_produit }}" 
-                                 class="w-full h-full object-cover">
+                            @php $img = $item->product->firstImage ?? null; @endphp
+                            @if($img)
+                                <img src="{{ $img }}" alt="{{ $item->product->nom_produit }}" class="w-full h-full object-cover">
+                            @else
+                                <div class="w-full h-full flex items-center justify-center text-slate-300"><i class="fas fa-image text-2xl"></i></div>
+                            @endif
                         </div>
                         <div>
                             <h3 class="font-black text-slate-900 uppercase text-lg">{{ $item->product->nom_produit }}</h3>
@@ -131,9 +134,23 @@
                     <p class="text-[10px] font-mono text-slate-500 mt-1">ID: {{ $order->paypal_paiement_id }}</p>
                 @endif
             </div>
-            <div class="text-right">
-                <span class="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-1">Total Net</span>
-                <span class="text-4xl md:text-5xl font-black text-slate-900 tracking-tighter leading-none">{{ number_format($order->total, 2) }} <span class="text-2xl">DH</span></span>
+            <div class="text-right space-y-2">
+                @php
+                    $itemsTotal = $order->items->sum('sous_total');
+                    $promoDiscount = $order->discount ?? 0;
+                @endphp
+                <div class="text-sm font-bold text-slate-500 uppercase tracking-widest">
+                    Sous-total : {{ number_format($itemsTotal, 2) }} DH
+                </div>
+                @if($promoDiscount > 0)
+                    <div class="text-sm font-bold text-emerald-600 uppercase tracking-widest">
+                        Promo <span class="font-mono">{{ $order->promo_code }}</span> : -{{ number_format($promoDiscount, 2) }} DH
+                    </div>
+                @endif
+                <div class="pt-2 border-t border-slate-300">
+                    <span class="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-1">Total réglé</span>
+                    <span class="text-4xl md:text-5xl font-black text-slate-900 tracking-tighter leading-none">{{ number_format($order->total, 2) }} <span class="text-2xl">DH</span></span>
+                </div>
             </div>
         </div>
     </div>

@@ -41,7 +41,7 @@
     <div class="bg-orange-500 text-white p-8 relative overflow-hidden group">
         <div class="relative z-10">
             <p class="text-xs font-bold uppercase tracking-widest mb-2 opacity-80">Chiffre d'Affaires</p>
-            <p class="text-5xl font-black tracking-tighter mb-4 whitespace-nowrap">{{ number_format($totalRevenue, 0) }}<span class="text-2xl ml-1">€</span></p>
+            <p class="text-5xl font-black tracking-tighter mb-4 whitespace-nowrap">{{ number_format($totalRevenue, 0) }}<span class="text-2xl ml-1">DH</span></p>
             <p class="text-[10px] font-bold uppercase tracking-widest bg-white/20 inline-block px-3 py-1.5">{{ $deliveredOrders }} livrées</p>
         </div>
         <i class="fas fa-euro-sign absolute -bottom-6 -right-4 text-8xl opacity-20 group-hover:scale-110 transition-all duration-500"></i>

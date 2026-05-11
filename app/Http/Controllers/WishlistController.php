@@ -16,7 +16,7 @@ class WishlistController extends Controller
     {
         $user = $request->user();
         $wishlistItems = $user->wishlistProducts()
-            ->with(['categorie', 'reviews'])
+            ->with(['categorie', 'reviews', 'images'])
             ->get()
             ->filter(function($product) {
                 return $product !== null;

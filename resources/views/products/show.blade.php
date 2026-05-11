@@ -6,11 +6,55 @@
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-20">
     <div class="gsap-hero">
         <div class="bg-white border border-slate-200 rounded-[2.5rem] p-3 shadow-2xl shadow-slate-200/60 sticky top-24">
-            <div class="rounded-[2rem] overflow-hidden bg-slate-50 aspect-square md:aspect-auto md:h-[600px] relative">
-                <img src="{{ $product->image ?? 'https://via.placeholder.com/800x800?text=' . urlencode($product->nom_produit) }}"
-                     alt="{{ $product->nom_produit }}"
-                     class="w-full h-full object-cover hover:scale-105 transition duration-700 ease-in-out">
+            @php
+                $allImages = $product->images->pluck('url')->toArray();
+                if (empty($allImages) && $product->image) {
+                    $allImages = [$product->image];
+                }
+                if (empty($allImages)) {
+                    $allImages = ['https://via.placeholder.com/800x800?text=' . urlencode($product->nom_produit)];
+                }
+            @endphp
+
+            {{-- Main image --}}
+            <div class="rounded-[2rem] overflow-hidden bg-slate-50 aspect-square md:aspect-auto md:h-[520px] relative" id="main-image-wrapper">
+                @foreach($allImages as $i => $imgUrl)
+                    <img src="{{ $imgUrl }}"
+                         alt="{{ $product->nom_produit }}"
+                         id="slide-{{ $i }}"
+                         class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 {{ $i === 0 ? 'opacity-100' : 'opacity-0' }}">
+                @endforeach
+
+                @if(count($allImages) > 1)
+                    {{-- Prev/Next arrows --}}
+                    <button onclick="changeSlide(-1)" class="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm shadow-md flex items-center justify-center text-slate-700 hover:bg-white hover:text-slate-900 transition-all z-10">
+                        <i class="fas fa-chevron-left text-sm"></i>
+                    </button>
+                    <button onclick="changeSlide(1)" class="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm shadow-md flex items-center justify-center text-slate-700 hover:bg-white hover:text-slate-900 transition-all z-10">
+                        <i class="fas fa-chevron-right text-sm"></i>
+                    </button>
+
+                    {{-- Dot indicators --}}
+                    <div class="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+                        @foreach($allImages as $i => $imgUrl)
+                            <button onclick="goToSlide({{ $i }})" id="dot-{{ $i }}"
+                                class="w-2 h-2 rounded-full transition-all {{ $i === 0 ? 'bg-slate-900 scale-125' : 'bg-slate-400' }}"></button>
+                        @endforeach
+                    </div>
+                @endif
             </div>
+
+            {{-- Thumbnails --}}
+            @if(count($allImages) > 1)
+                <div class="flex gap-2 mt-3 overflow-x-auto pb-1 px-1">
+                    @foreach($allImages as $i => $imgUrl)
+                        <button onclick="goToSlide({{ $i }})" id="thumb-{{ $i }}"
+                            class="shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 transition-all {{ $i === 0 ? 'border-slate-900' : 'border-transparent opacity-60' }}">
+                            <img src="{{ $imgUrl }}" alt="Vignette {{ $i+1 }}" class="w-full h-full object-cover">
+                        </button>
+                    @endforeach
+                </div>
+            @endif
         </div>
     </div>
 
@@ -37,7 +81,17 @@
             </div>
 
             <div class="flex items-end gap-5 mb-10 pb-10 border-b border-slate-100">
-                <span class="text-5xl font-black text-slate-900 tracking-tight">{{ number_format($product->prix, 2) }} <span class="text-2xl text-slate-400 font-bold">DH</span></span>
+                @if($product->discount_percent > 0)
+                    <div class="flex flex-col gap-1">
+                        <div class="flex items-center gap-3">
+                            <span class="text-5xl font-black text-slate-900 tracking-tight">{{ number_format($product->finalPrice, 2) }} <span class="text-2xl text-slate-400 font-bold">DH</span></span>
+                            <span class="bg-red-500 text-white text-sm font-black px-3 py-1 rounded-full">-{{ $product->discount_percent }}%</span>
+                        </div>
+                        <span class="text-lg text-slate-400 font-bold line-through">{{ number_format($product->prix, 2) }} DH</span>
+                    </div>
+                @else
+                    <span class="text-5xl font-black text-slate-900 tracking-tight">{{ number_format($product->prix, 2) }} <span class="text-2xl text-slate-400 font-bold">DH</span></span>
+                @endif
                 @if($product->stock > 0)
                     <span class="text-sm font-bold text-emerald-700 bg-emerald-50 border border-emerald-100 px-4 py-2 rounded-xl inline-flex items-center gap-2 mb-1">
                         <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> En stock ({{ $product->stock }})
@@ -57,7 +111,7 @@
             </p>
 
             <div class="space-y-4">
-                @if($product->stock > 0 && auth()->check())
+                @if($product->stock > 0 && auth()->check() && !auth()->user()->isAdmin())
                     <form action="{{ route('client.cart.add', $product) }}" method="POST" class="flex flex-col sm:flex-row gap-4">
                         @csrf
                         <div class="flex items-center bg-slate-50 border border-slate-200 rounded-2xl p-1 shrink-0 w-full sm:w-auto">
@@ -77,15 +131,28 @@
                 @endif
 
                 @auth
-                    <form action="{{ route('client.wishlist.add', $product) }}" method="POST" class="text-center sm:text-left mt-4">
-                        @csrf
-                        <button type="submit" class="text-sm font-bold text-slate-500 hover:text-slate-900 transition-colors inline-flex items-center gap-2 py-2 group">
-                            <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center group-hover:bg-red-50 group-hover:text-red-500 transition-colors">
-                                <i class="fas fa-heart text-xs"></i>
-                            </div>
-                            Ajouter aux favoris
-                        </button>
-                    </form>
+                    @if(!auth()->user()->isAdmin() && $isInWishlist)
+                        <form action="{{ route('client.wishlist.remove', $product) }}" method="POST" class="text-center sm:text-left mt-4">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="text-sm font-bold text-red-500 hover:text-red-700 transition-colors inline-flex items-center gap-2 py-2 group">
+                                <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-red-500 group-hover:bg-red-200 transition-colors">
+                                    <i class="fas fa-heart text-xs"></i>
+                                </div>
+                                Retirer des favoris
+                            </button>
+                        </form>
+                    @elseif(!auth()->user()->isAdmin())
+                        <form action="{{ route('client.wishlist.add', $product) }}" method="POST" class="text-center sm:text-left mt-4">
+                            @csrf
+                            <button type="submit" class="text-sm font-bold text-slate-500 hover:text-slate-900 transition-colors inline-flex items-center gap-2 py-2 group">
+                                <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center group-hover:bg-red-50 group-hover:text-red-500 transition-colors">
+                                    <i class="fas fa-heart text-xs"></i>
+                                </div>
+                                Ajouter aux favoris
+                            </button>
+                        </form>
+                    @endif
                 @endauth
             </div>
         </div>
@@ -202,7 +269,7 @@
             @foreach($relatedProducts as $related)
                 <div class="bg-white border border-slate-200 rounded-[1.5rem] p-2 hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300 group flex flex-col h-full">
                     <a href="{{ route('products.show', $related->slug) }}" class="block relative overflow-hidden aspect-[4/3] rounded-[1rem] bg-slate-50 mb-4">
-                        <img src="{{ $related->image ?? 'https://via.placeholder.com/300x200?text=' . urlencode($related->nom_produit) }}"
+                        <img src="{{ $related->firstImage ?? 'https://via.placeholder.com/300x200?text=' . urlencode($related->nom_produit) }}"
                              alt="{{ $related->nom_produit }}"
                              class="w-full h-full object-cover group-hover:scale-105 transition duration-700">
                     </a>
@@ -210,7 +277,15 @@
                         <h3 class="font-extrabold text-slate-900 mb-1 text-base leading-tight line-clamp-2 hover:text-slate-600 transition-colors">
                             <a href="{{ route('products.show', $related->slug) }}">{{ $related->nom_produit }}</a>
                         </h3>
-                        <span class="mt-auto text-lg font-black text-slate-900">{{ number_format($related->prix, 2) }} DH</span>
+                        @if($related->discount_percent > 0)
+                            <div class="mt-auto flex items-center gap-2">
+                                <span class="text-lg font-black text-slate-900">{{ number_format($related->finalPrice, 2) }} DH</span>
+                                <span class="bg-red-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full">-{{ $related->discount_percent }}%</span>
+                            </div>
+                            <span class="text-sm text-slate-400 font-bold line-through">{{ number_format($related->prix, 2) }} DH</span>
+                        @else
+                            <span class="mt-auto text-lg font-black text-slate-900">{{ number_format($related->prix, 2) }} DH</span>
+                        @endif
                     </div>
                 </div>
             @endforeach
@@ -220,6 +295,30 @@
 
 @push('scripts')
 <script>
+    // Photo slider
+    const totalSlides = {{ count($allImages) }};
+    let currentSlide = 0;
+
+    function goToSlide(index) {
+        document.getElementById('slide-' + currentSlide).classList.replace('opacity-100', 'opacity-0');
+        const prevDot = document.getElementById('dot-' + currentSlide);
+        const prevThumb = document.getElementById('thumb-' + currentSlide);
+        if (prevDot) { prevDot.className = 'w-2 h-2 rounded-full transition-all bg-slate-400'; }
+        if (prevThumb) { prevThumb.className = prevThumb.className.replace('border-slate-900', 'border-transparent').replace('opacity-100', 'opacity-60'); prevThumb.style.opacity = '0.6'; }
+
+        currentSlide = (index + totalSlides) % totalSlides;
+
+        document.getElementById('slide-' + currentSlide).classList.replace('opacity-0', 'opacity-100');
+        const newDot = document.getElementById('dot-' + currentSlide);
+        const newThumb = document.getElementById('thumb-' + currentSlide);
+        if (newDot) { newDot.className = 'w-2 h-2 rounded-full transition-all bg-slate-900 scale-125'; }
+        if (newThumb) { newThumb.style.opacity = '1'; newThumb.className = newThumb.className.replace('border-transparent', 'border-slate-900'); }
+    }
+
+    function changeSlide(direction) {
+        goToSlide(currentSlide + direction);
+    }
+
     // Logique Laravel conservée
     function decrementQty() {
         const input = document.getElementById('quantity');

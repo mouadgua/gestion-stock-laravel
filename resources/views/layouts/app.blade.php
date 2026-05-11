@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'The Vault')</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
@@ -82,9 +83,14 @@
                         
                         <div class="flex items-center gap-6 pl-6 border-l border-slate-800">
                             <a href="{{ route('profile.edit') }}" class="flex items-center gap-3 text-slate-300 hover:text-white transition-colors group">
-                                <div class="w-8 h-8 bg-slate-800 flex items-center justify-center text-xs font-black uppercase group-hover:bg-white group-hover:text-slate-950 transition-colors">
-                                    {{ substr(auth()->user()->name, 0, 1) }}
-                                </div>
+                                @if(auth()->user()->avatar)
+                                    <img src="{{ auth()->user()->avatar }}" alt="{{ auth()->user()->name }}"
+                                         class="w-8 h-8 rounded-full object-cover border-2 border-slate-700 group-hover:border-white transition-colors">
+                                @else
+                                    <div class="w-8 h-8 bg-slate-800 flex items-center justify-center text-xs font-black uppercase group-hover:bg-white group-hover:text-slate-950 transition-colors">
+                                        {{ substr(auth()->user()->name, 0, 1) }}
+                                    </div>
+                                @endif
                                 <span class="text-xs font-bold uppercase tracking-widest">{{ auth()->user()->name }}</span>
                             </a>
                             
@@ -135,7 +141,17 @@
                     <a href="{{ route('client.wishlist.index') }}" class="text-2xl font-black uppercase tracking-widest text-white hover:text-rose-400">Mes Favoris</a>
                 @endif
                 <div class="h-px w-16 bg-slate-800 mx-auto my-4"></div>
-                <a href="{{ route('profile.edit') }}" class="text-sm font-bold uppercase tracking-widest text-slate-400">Paramètres</a>
+                <a href="{{ route('profile.edit') }}" class="flex flex-col items-center gap-2">
+                    @if(auth()->user()->avatar)
+                        <img src="{{ auth()->user()->avatar }}" alt="{{ auth()->user()->name }}"
+                             class="w-14 h-14 rounded-full object-cover border-2 border-slate-700 mx-auto">
+                    @else
+                        <div class="w-14 h-14 bg-slate-800 rounded-full flex items-center justify-center text-xl font-black uppercase text-white mx-auto">
+                            {{ substr(auth()->user()->name, 0, 1) }}
+                        </div>
+                    @endif
+                    <span class="text-sm font-bold uppercase tracking-widest text-slate-400">{{ auth()->user()->name }}</span>
+                </a>
                 <form method="POST" action="{{ route('logout') }}" class="mt-4">
                     @csrf
                     <button type="submit" class="text-sm font-bold uppercase tracking-widest text-rose-500">Déconnexion</button>
@@ -171,6 +187,9 @@
             <a href="{{ route('admin.activity-logs.index') }}" class="flex items-center gap-3 px-4 py-3 text-xs font-black uppercase tracking-widest transition-all {{ request()->routeIs('admin.activity-logs.*') ? 'bg-slate-900 text-white' : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900' }}">
                 <i class="fas fa-history w-5 text-center"></i> Activités
             </a>
+            <a href="{{ route('admin.promotions.index') }}" class="flex items-center gap-3 px-4 py-3 text-xs font-black uppercase tracking-widest transition-all {{ request()->routeIs('admin.promotions.*') ? 'bg-amber-500 text-white' : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900' }}">
+                <i class="fas fa-tag w-5 text-center"></i> Promos
+            </a>
         </aside>
 
         <button onclick="toggleAdminSidebar()" class="lg:hidden fixed bottom-6 left-6 z-50 w-14 h-14 bg-slate-900 text-white rounded-none flex items-center justify-center shadow-xl hover:bg-slate-800 transition-colors">
@@ -190,6 +209,7 @@
                 <a href="{{ route('admin.orders.index') }}" class="px-4 py-3 text-xs font-black uppercase tracking-widest text-slate-700 hover:bg-slate-50 border-l-4 border-transparent hover:border-purple-600">Commandes</a>
                 <a href="{{ route('admin.users.index') }}" class="px-4 py-3 text-xs font-black uppercase tracking-widest text-slate-700 hover:bg-slate-50 border-l-4 border-transparent hover:border-slate-900">Utilisateurs</a>
                 <a href="{{ route('admin.activity-logs.index') }}" class="px-4 py-3 text-xs font-black uppercase tracking-widest text-slate-700 hover:bg-slate-50 border-l-4 border-transparent hover:border-slate-900">Activités</a>
+                <a href="{{ route('admin.promotions.index') }}" class="px-4 py-3 text-xs font-black uppercase tracking-widest text-slate-700 hover:bg-slate-50 border-l-4 border-transparent hover:border-amber-500">Promos</a>
             </div>
         </aside>
 
@@ -316,78 +336,79 @@
         }
 
         // Chatbot
-        let chatMessages=[],isLoadingHistory=false;
+        let chatContext=[], isBotTyping=false;
+
         function toggleChat(){
             const win = document.getElementById('chatWindow');
             win.classList.toggle('hidden');
             if(!win.classList.contains('hidden')) {
                 gsap.fromTo(win, {scale: 0.9, opacity: 0}, {scale: 1, opacity: 1, duration: 0.3, ease: "back.out(1.7)"});
-                if(chatMessages.length===0) loadChatHistory();
             }
         }
-        
-        function loadChatHistory(){
-            if(isLoadingHistory)return;
-            isLoadingHistory=true;
-            fetch('{{ route("chat.history") }}').then(r=>r.json()).then(d=>{
-                chatMessages=d.messages||[];
-                renderChatHistory();
-                isLoadingHistory=false;
-            }).catch(()=>{isLoadingHistory=false;});
-        }
-        
-        function renderChatHistory(){
+
+        function appendBotMessage(text){
             const c=document.getElementById('chatMessages');
-            c.innerHTML='';
-            if(chatMessages.length===0){
-                c.innerHTML=`<div class="flex items-end gap-2"><div class="w-6 h-6 bg-slate-900 flex items-center justify-center shrink-0"><i class="fas fa-robot text-white text-[10px]"></i></div><div class="bg-white border-2 border-slate-200 p-3 shadow-sm max-w-[80%]"><p class="text-xs font-bold text-slate-700 leading-relaxed uppercase tracking-wide">Bonjour ! Bienvenue dans The Vault. Comment puis-je vous assister ?</p></div></div>`;
-                return;
-            }
-            chatMessages.forEach(msg=>{
-                const d=document.createElement('div');
-                if(msg.sender_type==='system'){
-                    d.className='flex items-end gap-2';
-                    d.innerHTML=`<div class="w-6 h-6 bg-slate-900 flex items-center justify-center shrink-0"><i class="fas fa-robot text-white text-[10px]"></i></div><div class="bg-white border-2 border-slate-200 p-3 shadow-sm max-w-[80%]"><p class="text-xs font-bold text-slate-700 leading-relaxed uppercase tracking-wide">${escapeHtml(msg.message)}</p></div>`;
-                }else{
-                    d.className='flex items-end gap-2 flex-row-reverse';
-                    d.innerHTML=`<div class="w-6 h-6 bg-slate-200 flex items-center justify-center shrink-0"><i class="fas fa-user text-slate-600 text-[10px]"></i></div><div class="bg-slate-900 p-3 shadow-sm max-w-[80%]"><p class="text-xs font-bold text-white leading-relaxed uppercase tracking-wide">${escapeHtml(msg.message)}</p></div>`;
-                }
-                c.appendChild(d);
-            });
+            const d=document.createElement('div');
+            d.className='flex items-end gap-2';
+            d.innerHTML=`<div class="w-6 h-6 bg-slate-900 flex items-center justify-center shrink-0"><i class="fas fa-robot text-white text-[10px]"></i></div><div class="bg-white border-2 border-slate-200 p-3 shadow-sm max-w-[80%]"><p class="text-xs font-medium text-slate-700 leading-relaxed">${escapeHtml(text)}</p></div>`;
+            c.appendChild(d);
             c.scrollTop=c.scrollHeight;
         }
-        
-        function sendMessage(){
-            const input=document.getElementById('chatInput');
-            const msg=input.value.trim();
-            if(!msg)return;
-            
+
+        function appendUserMessage(text){
             const c=document.getElementById('chatMessages');
             const d=document.createElement('div');
             d.className='flex items-end gap-2 flex-row-reverse';
-            d.innerHTML=`<div class="w-6 h-6 bg-slate-200 flex items-center justify-center shrink-0"><i class="fas fa-user text-slate-600 text-[10px]"></i></div><div class="bg-slate-900 p-3 shadow-sm max-w-[80%]"><p class="text-xs font-bold text-white leading-relaxed uppercase tracking-wide">${escapeHtml(msg)}</p></div>`;
+            d.innerHTML=`<div class="w-6 h-6 bg-slate-200 flex items-center justify-center shrink-0"><i class="fas fa-user text-slate-600 text-[10px]"></i></div><div class="bg-slate-900 p-3 shadow-sm max-w-[80%]"><p class="text-xs font-medium text-white leading-relaxed">${escapeHtml(text)}</p></div>`;
             c.appendChild(d);
-            
-            input.value='';
             c.scrollTop=c.scrollHeight;
-            
-            fetch('{{ route("chat.store") }}',{
+        }
+
+        function showTypingIndicator(){
+            const c=document.getElementById('chatMessages');
+            const d=document.createElement('div');
+            d.id='typingIndicator';
+            d.className='flex items-end gap-2';
+            d.innerHTML=`<div class="w-6 h-6 bg-slate-900 flex items-center justify-center shrink-0"><i class="fas fa-robot text-white text-[10px]"></i></div><div class="bg-white border-2 border-slate-200 p-3 shadow-sm"><p class="text-xs font-bold text-slate-400 tracking-widest">...</p></div>`;
+            c.appendChild(d);
+            c.scrollTop=c.scrollHeight;
+        }
+
+        function removeTypingIndicator(){
+            document.getElementById('typingIndicator')?.remove();
+        }
+
+        function sendMessage(){
+            if(isBotTyping) return;
+            const input=document.getElementById('chatInput');
+            const msg=input.value.trim();
+            if(!msg) return;
+
+            appendUserMessage(msg);
+            input.value='';
+            isBotTyping=true;
+            showTypingIndicator();
+
+            const contextToSend = chatContext.slice(-10);
+
+            fetch('{{ route("ai.chat") }}',{
                 method:'POST',
                 headers:{'Content-Type':'application/json','X-CSRF-TOKEN':'{{ csrf_token() }}'},
-                body:JSON.stringify({message:msg})
+                body:JSON.stringify({message:msg, context:contextToSend})
             }).then(r=>r.json()).then(data=>{
-                if(data.success) chatMessages.push(data.message);
-            }).catch(()=>{});
-            
-            setTimeout(()=>{
-                const b=document.createElement('div');
-                b.className='flex items-end gap-2';
-                b.innerHTML=`<div class="w-6 h-6 bg-slate-900 flex items-center justify-center shrink-0"><i class="fas fa-robot text-white text-[10px]"></i></div><div class="bg-white border-2 border-slate-200 p-3 shadow-sm max-w-[80%]"><p class="text-xs font-bold text-slate-700 leading-relaxed uppercase tracking-wide">Merci ! Un agent Vault vous répondra sous peu.</p></div>`;
-                c.appendChild(b);
-                c.scrollTop=c.scrollHeight;
-            }, 1200);
+                removeTypingIndicator();
+                isBotTyping=false;
+                const reply = data.response || "Désolé, je n'ai pas pu répondre.";
+                appendBotMessage(reply);
+                chatContext.push({role:'user', text:msg});
+                chatContext.push({role:'model', text:reply});
+            }).catch(()=>{
+                removeTypingIndicator();
+                isBotTyping=false;
+                appendBotMessage("Désolé, une erreur est survenue. Veuillez réessayer.");
+            });
         }
-        
+
         function escapeHtml(text){const d=document.createElement('div');d.textContent=text;return d.innerHTML;}
         document.getElementById('chatInput').addEventListener('keypress',function(e){if(e.key==='Enter')sendMessage();});
 

@@ -42,12 +42,16 @@ class GoogleSocialiteController extends Controller
         $existingUser = User::where('email', $googleUser->getEmail())->first();
 
         if ($existingUser) {
-            // Check if this user already has google_id set
+            $updates = [];
             if (empty($existingUser->google_id)) {
-                $existingUser->update([
-                    'google_id' => $googleUser->getId(),
-                    'avatar' => $googleUser->getAvatar(),
-                ]);
+                $updates['google_id'] = $googleUser->getId();
+                $updates['avatar'] = $googleUser->getAvatar();
+            }
+            if (is_null($existingUser->email_verified_at)) {
+                $updates['email_verified_at'] = now();
+            }
+            if (!empty($updates)) {
+                $existingUser->update($updates);
             }
 
             Auth::login($existingUser);
@@ -60,7 +64,7 @@ class GoogleSocialiteController extends Controller
             return redirect()->intended(route('home'));
         }
 
-        // Create a new user
+        // Create a new user — Google already verifies email, so mark it as verified
         $user = User::create([
             'name' => $googleUser->getName() ?? $googleUser->getEmail(),
             'email' => $googleUser->getEmail(),
@@ -68,6 +72,7 @@ class GoogleSocialiteController extends Controller
             'avatar' => $googleUser->getAvatar(),
             'password' => Hash::make(bin2hex(random_bytes(16))),
             'role' => 'acheteur',
+            'email_verified_at' => now(),
         ]);
 
         Auth::login($user);

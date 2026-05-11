@@ -21,28 +21,30 @@
         
         <h2 class="text-2xl font-black text-slate-900 uppercase tracking-tight mb-8">Informations Personnelles</h2>
 
-        <!-- Avatar Upload Section -->
-        <div class="mb-8 p-6 bg-slate-50 border-2 border-slate-200">
-            <label class="block text-xs font-bold text-slate-900 uppercase tracking-widest mb-4">Photo de profil</label>
-            <div class="flex items-center gap-6">
-                <div class="w-20 h-20 rounded-full bg-slate-200 flex items-center justify-center overflow-hidden shrink-0 border-2 border-slate-300">
-                    @if($user->avatar)
-                        <img src="{{ $user->avatar }}" alt="Avatar" class="w-full h-full object-cover">
-                    @else
-                        <span class="text-2xl font-black text-slate-500">{{ substr($user->name, 0, 1) }}</span>
-                    @endif
-                </div>
-                <div class="flex-1">
-                    <input type="file" name="avatar" id="avatar" accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
-                        class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:border-0 file:text-xs file:font-black file:uppercase file:tracking-widest file:bg-slate-900 file:text-white hover:file:bg-slate-800 cursor-pointer border border-slate-200 bg-white p-2">
-                    <p class="mt-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Formats: JPEG, PNG, WEBP, GIF, AVIF. Max 5MB</p>
-                </div>
-            </div>
-        </div>
-        
         <form method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data" class="space-y-8">
             @csrf
             @method('PATCH')
+
+            <!-- Avatar Upload Section -->
+            <div class="mb-8 p-6 bg-slate-50 border-2 border-slate-200">
+                <label class="block text-xs font-bold text-slate-900 uppercase tracking-widest mb-4">Photo de profil</label>
+                <div class="flex items-center gap-6">
+                    <div class="w-20 h-20 rounded-full bg-slate-200 flex items-center justify-center overflow-hidden shrink-0 border-2 border-slate-300" id="avatar-preview-wrapper">
+                        @if($user->avatar)
+                            <img src="{{ $user->avatar }}" alt="Avatar" class="w-full h-full object-cover" id="avatar-preview">
+                        @else
+                            <span class="text-2xl font-black text-slate-500" id="avatar-initials">{{ substr($user->name, 0, 1) }}</span>
+                            <img src="" alt="Avatar" class="w-full h-full object-cover hidden" id="avatar-preview">
+                        @endif
+                    </div>
+                    <div class="flex-1">
+                        <input type="file" name="avatar" id="avatar" accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
+                            onchange="previewAvatar(event)"
+                            class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:border-0 file:text-xs file:font-black file:uppercase file:tracking-widest file:bg-slate-900 file:text-white hover:file:bg-slate-800 cursor-pointer border border-slate-200 bg-white p-2">
+                        <p class="mt-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Formats: JPEG, PNG, WEBP, GIF, AVIF. Max 5MB</p>
+                    </div>
+                </div>
+            </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div>
@@ -155,9 +157,23 @@
 
 @push('scripts')
 <script>
+    function previewAvatar(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const preview = document.getElementById('avatar-preview');
+            const initials = document.getElementById('avatar-initials');
+            preview.src = e.target.result;
+            preview.classList.remove('hidden');
+            if (initials) initials.classList.add('hidden');
+        };
+        reader.readAsDataURL(file);
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
-        gsap.fromTo(".gsap-fade-up", 
-            { y: 30, opacity: 0 }, 
+        gsap.fromTo(".gsap-fade-up",
+            { y: 30, opacity: 0 },
             { y: 0, opacity: 1, duration: 0.8, stagger: 0.15, ease: "power3.out" }
         );
     });

@@ -14,7 +14,7 @@ class HomeController extends Controller
     public function index()
     {
         $recentProducts = Product::where('est_actif', true)
-            ->with('categorie')
+            ->with(['categorie', 'images'])
             ->orderByDesc('created_at')
             ->limit(8)
             ->get();

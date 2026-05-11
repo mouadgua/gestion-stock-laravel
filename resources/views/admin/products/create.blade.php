@@ -67,19 +67,43 @@
                 </div>
 
                 <div>
-                    <label for="description" class="block text-xs font-bold text-slate-900 uppercase tracking-widest mb-3">Description détaillée</label>
-                    <textarea name="description" id="description" rows="5" 
-                              class="w-full px-5 py-4 bg-white border border-slate-300 focus:border-slate-900 focus:ring-0 text-slate-900 font-medium transition-colors resize-y" 
+                    <div class="flex items-center justify-between mb-3">
+                        <label for="description" class="block text-xs font-bold text-slate-900 uppercase tracking-widest">Description détaillée</label>
+                        <div class="flex items-center gap-2">
+                            <select id="ai-lang" class="text-xs font-bold text-slate-700 border border-slate-200 bg-white px-2 py-1.5 focus:ring-0 focus:border-slate-900">
+                                <option value="fr">🇫🇷 Français</option>
+                                <option value="en">🇬🇧 English</option>
+                                <option value="ar">🇲🇦 العربية</option>
+                            </select>
+                            <button type="button" onclick="generateDescription()"
+                                id="ai-btn"
+                                class="flex items-center gap-2 bg-violet-600 text-white text-xs font-black uppercase tracking-widest px-4 py-1.5 hover:bg-violet-700 transition-colors">
+                                <i class="fas fa-wand-magic-sparkles" id="ai-icon"></i>
+                                Générer avec l'IA
+                            </button>
+                        </div>
+                    </div>
+                    <textarea name="description" id="description" rows="5"
+                              class="w-full px-5 py-4 bg-white border border-slate-300 focus:border-slate-900 focus:ring-0 text-slate-900 font-medium transition-colors resize-y"
                               placeholder="Décrivez les caractéristiques de l'objet...">{{ old('description') }}</textarea>
+                    <p id="ai-error" class="text-red-500 text-xs font-bold mt-1 hidden"></p>
                 </div>
 
-                <div class="grid grid-cols-2 gap-8 border-t border-slate-200 pt-10">
+                <div class="grid grid-cols-3 gap-8 border-t border-slate-200 pt-10">
                     <div>
                         <label for="prix" class="block text-xs font-bold text-slate-900 uppercase tracking-widest mb-3">Valeur (DH) <span class="text-red-500">*</span></label>
                         <input type="number" name="prix" id="prix" value="{{ old('prix') }}" step="0.01" min="0" required
                             class="w-full px-5 py-4 bg-white border border-slate-300 focus:border-slate-900 focus:ring-0 text-slate-900 font-black text-xl transition-colors @error('prix') border-red-500 @enderror"
-                            placeholder="0.00">
+                            placeholder="0.00" oninput="updateDiscountPreview()">
                         @error('prix') <p class="text-red-500 text-xs font-bold mt-2">{{ $message }}</p> @enderror
+                    </div>
+                    <div>
+                        <label for="discount_percent" class="block text-xs font-bold text-slate-900 uppercase tracking-widest mb-3">Réduction (%)</label>
+                        <input type="number" name="discount_percent" id="discount_percent" value="{{ old('discount_percent', 0) }}" min="0" max="100"
+                            class="w-full px-5 py-4 bg-white border border-slate-300 focus:border-slate-900 focus:ring-0 text-slate-900 font-black text-xl transition-colors @error('discount_percent') border-red-500 @enderror"
+                            placeholder="0" oninput="updateDiscountPreview()">
+                        <p id="discount-preview" class="mt-2 text-xs font-bold text-violet-600 hidden"></p>
+                        @error('discount_percent') <p class="text-red-500 text-xs font-bold mt-2">{{ $message }}</p> @enderror
                     </div>
                     <div>
                         <label for="stock" class="block text-xs font-bold text-slate-900 uppercase tracking-widest mb-3">Unités en stock <span class="text-red-500">*</span></label>
@@ -115,18 +139,89 @@
 
 @push('scripts')
 <script>
-function previewImage(event) {
-    const file = event.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            document.getElementById('preview').src = e.target.result;
-            document.getElementById('preview').classList.remove('hidden');
-            document.getElementById('placeholder').classList.add('hidden');
-        }
-        reader.readAsDataURL(file);
+function previewMultipleImages(event) {
+    const files = Array.from(event.target.files);
+    const container = document.getElementById('preview-container');
+    const placeholder = document.getElementById('placeholder-box');
+    container.querySelectorAll('.preview-item').forEach(el => el.remove());
+    if (files.length > 0) {
+        placeholder.classList.add('hidden');
+        files.forEach(file => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const div = document.createElement('div');
+                div.className = 'preview-item w-32 aspect-[4/5] bg-white border border-slate-200 overflow-hidden shrink-0';
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.className = 'w-full h-full object-cover';
+                div.appendChild(img);
+                container.appendChild(div);
+            };
+            reader.readAsDataURL(file);
+        });
+    } else {
+        placeholder.classList.remove('hidden');
     }
 }
+
+async function generateDescription() {
+    const btn = document.getElementById('ai-btn');
+    const icon = document.getElementById('ai-icon');
+    const errEl = document.getElementById('ai-error');
+    const lang = document.getElementById('ai-lang').value;
+    const productName = document.getElementById('nom_produit')?.value || '';
+    const filesInput = document.getElementById('images');
+    const files = filesInput ? Array.from(filesInput.files) : [];
+
+    btn.disabled = true;
+    icon.className = 'fas fa-spinner fa-spin';
+    errEl.classList.add('hidden');
+
+    // Convert files to base64
+    const imageData = await Promise.all(files.slice(0, 3).map(file => new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = e => resolve(e.target.result);
+        reader.readAsDataURL(file);
+    })));
+
+    try {
+        const res = await fetch('{{ route("admin.ai.describe") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            },
+            body: JSON.stringify({ language: lang, images: imageData, product_name: productName })
+        });
+        const data = await res.json();
+        if (data.description) {
+            document.getElementById('description').value = data.description;
+        } else {
+            errEl.textContent = data.error || 'Erreur inconnue.';
+            errEl.classList.remove('hidden');
+        }
+    } catch(e) {
+        errEl.textContent = 'Erreur réseau.';
+        errEl.classList.remove('hidden');
+    } finally {
+        btn.disabled = false;
+        icon.className = 'fas fa-wand-magic-sparkles';
+    }
+}
+
+function updateDiscountPreview() {
+    const prix = parseFloat(document.getElementById('prix')?.value) || 0;
+    const discount = parseInt(document.getElementById('discount_percent')?.value) || 0;
+    const preview = document.getElementById('discount-preview');
+    if (prix > 0 && discount > 0) {
+        const final = (prix * (1 - discount / 100)).toFixed(2);
+        preview.textContent = `Prix final : ${final} DH`;
+        preview.classList.remove('hidden');
+    } else {
+        preview.classList.add('hidden');
+    }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     gsap.fromTo(".gsap-fade-up", { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8, stagger: 0.1, ease: "power3.out" });
 });

@@ -45,6 +45,9 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        return redirect()->route('home');
+        $user->sendEmailVerificationNotification();
+
+        return redirect()->route('verification.notice')
+            ->with('success', 'Inscription réussie ! Vérifiez votre email pour activer votre compte.');
     }
 }

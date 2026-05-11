@@ -119,9 +119,8 @@ class PayPalService
 
         try {
             $response = Http::withToken($token)
-                ->withHeader('Content-Type', 'application/json')
-                // 🛠 LA CORRECTION EST ICI : on ajoute le tableau vide []
-                ->post("{$this->baseUrl}/v2/checkout/orders/{$paypalOrderId}/capture", []);
+                ->withBody('{}', 'application/json')
+                ->post("{$this->baseUrl}/v2/checkout/orders/{$paypalOrderId}/capture");
 
             if ($response->successful()) {
                 return $response->json();

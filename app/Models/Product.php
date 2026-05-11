@@ -18,6 +18,7 @@ class Product extends Model
         'nom_produit',
         'description',
         'prix',
+        'discount_percent',
         'stock',
         'image',
         'slug',
@@ -38,9 +39,18 @@ class Product extends Model
 
     protected $casts = [
         'prix' => 'decimal:2',
+        'discount_percent' => 'integer',
         'stock' => 'integer',
         'est_actif' => 'boolean',
     ];
+
+    public function getFinalPriceAttribute(): float
+    {
+        if ($this->discount_percent > 0) {
+            return round($this->prix * (1 - $this->discount_percent / 100), 2);
+        }
+        return (float) $this->prix;
+    }
 
     public function categorie(): BelongsTo
     {

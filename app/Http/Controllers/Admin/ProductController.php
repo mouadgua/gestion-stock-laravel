@@ -45,6 +45,7 @@ class ProductController extends Controller
             'nom_produit' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
             'prix' => ['required', 'numeric', 'min:0'],
+            'discount_percent' => ['nullable', 'integer', 'min:0', 'max:100'],
             'stock' => ['required', 'integer', 'min:0'],
             'categorie_id' => ['nullable', 'exists:categories,id'],
             'est_actif' => ['boolean'],
@@ -54,6 +55,7 @@ class ProductController extends Controller
 
         $validated['slug'] = Str::slug($validated['nom_produit']) . '-' . uniqid();
         $validated['est_actif'] = $request->has('est_actif');
+        $validated['discount_percent'] = $validated['discount_percent'] ?? 0;
 
         // Create product
         $product = Product::create($validated);
@@ -95,6 +97,7 @@ class ProductController extends Controller
             'nom_produit' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
             'prix' => ['required', 'numeric', 'min:0'],
+            'discount_percent' => ['nullable', 'integer', 'min:0', 'max:100'],
             'stock' => ['required', 'integer', 'min:0'],
             'categorie_id' => ['nullable', 'exists:categories,id'],
             'est_actif' => ['boolean'],
@@ -103,6 +106,7 @@ class ProductController extends Controller
         ]);
 
         $validated['est_actif'] = $request->has('est_actif');
+        $validated['discount_percent'] = $validated['discount_percent'] ?? 0;
 
         $product->update($validated);
 
@@ -123,6 +127,24 @@ class ProductController extends Controller
 
         return redirect()->route('admin.products.index')
             ->with('success', 'Produit mis à jour avec succès.');
+    }
+
+    /**
+     * Remove a single image from a product.
+     */
+    public function destroyImage(Request $request, Product $product, ProductImage $image, CloudinaryService $cloudinary)
+    {
+        if ($image->public_id) {
+            $cloudinary->delete($image->public_id);
+        }
+        $image->delete();
+
+        if ($request->expectsJson()) {
+            return response()->json(['success' => true]);
+        }
+
+        return redirect()->route('admin.products.edit', $product)
+            ->with('success', 'Image supprimée avec succès.');
     }
 
     /**

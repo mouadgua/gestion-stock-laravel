@@ -22,7 +22,7 @@
                 <div class="py-8 flex flex-col sm:flex-row gap-6 border-b border-slate-200 gsap-row">
                     
                     <div class="w-24 sm:w-32 aspect-[4/5] bg-slate-100 shrink-0 overflow-hidden">
-                        <img src="{{ $item['product']->image ?? 'https://via.placeholder.com/200x250' }}"
+                        <img src="{{ $item['product']->firstImage ?? 'https://via.placeholder.com/200x250' }}"
                              alt="{{ $item['product']->nom_produit }}"
                              class="w-full h-full object-cover">
                     </div>
@@ -39,7 +39,11 @@
                             </div>
                             <div class="text-right">
                                 <p class="font-black text-slate-900 text-lg whitespace-nowrap">{{ number_format($item['subtotal'], 2) }} DH</p>
-                                <p class="text-[10px] font-bold text-slate-400 tracking-widest uppercase mt-1">{{ number_format($item['product']->prix, 2) }} DH / unité</p>
+                                @if($item['product']->discount_percent > 0)
+                                    <p class="text-[10px] font-bold text-red-500 tracking-widest uppercase mt-1">-{{ $item['product']->discount_percent }}% → {{ number_format($item['product']->finalPrice, 2) }} DH / unité</p>
+                                @else
+                                    <p class="text-[10px] font-bold text-slate-400 tracking-widest uppercase mt-1">{{ number_format($item['product']->prix, 2) }} DH / unité</p>
+                                @endif
                             </div>
                         </div>
 
@@ -80,12 +84,47 @@
         <div class="lg:col-span-4 gsap-fade-up">
             <div class="bg-slate-50 p-8 border border-slate-200 sticky top-28">
                 <h2 class="text-xl font-black text-slate-900 uppercase tracking-tight border-b border-slate-200 pb-4 mb-6">Récapitulatif</h2>
-                
+
+                {{-- Promo code --}}
+                @php $cartPromo = session('cart_promo'); @endphp
+                @if($cartPromo)
+                    <div class="bg-emerald-50 border border-emerald-200 px-4 py-3 mb-4 flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-black text-emerald-800 uppercase tracking-widest">{{ $cartPromo['code'] }}</p>
+                            <p class="text-xs font-bold text-emerald-600">-{{ number_format($cartPromo['discount'], 2) }} DH</p>
+                        </div>
+                        <form method="POST" action="{{ route('client.cart.promo.remove') }}">
+                            @csrf @method('DELETE')
+                            <button type="submit" class="text-emerald-500 hover:text-red-500 transition-colors">
+                                <i class="fas fa-times text-xs"></i>
+                            </button>
+                        </form>
+                    </div>
+                @else
+                    <form method="POST" action="{{ route('client.cart.promo') }}" class="flex gap-2 mb-4">
+                        @csrf
+                        <input type="text" name="promo_code" placeholder="Code promo" value="{{ old('promo_code') }}"
+                            class="flex-1 px-3 py-2 bg-white border border-slate-300 focus:border-slate-900 focus:ring-0 text-slate-900 font-bold text-sm uppercase tracking-widest @error('promo_code') border-red-400 @enderror">
+                        <button type="submit" class="bg-slate-900 text-white px-4 py-2 font-black text-xs uppercase tracking-widest hover:bg-slate-800 transition-colors">
+                            Appliquer
+                        </button>
+                    </form>
+                    @error('promo_code')
+                        <p class="text-red-500 text-xs font-bold mb-3">{{ $message }}</p>
+                    @enderror
+                @endif
+
                 <div class="space-y-4 mb-8">
                     <div class="flex justify-between items-center text-sm font-bold text-slate-500 uppercase tracking-widest">
                         <span>Sous-total</span>
                         <span class="text-slate-900">{{ number_format($total, 2) }} DH</span>
                     </div>
+                    @if($cartPromo)
+                        <div class="flex justify-between items-center text-sm font-bold text-emerald-600 uppercase tracking-widest">
+                            <span>Réduction</span>
+                            <span>-{{ number_format($cartPromo['discount'], 2) }} DH</span>
+                        </div>
+                    @endif
                     <div class="flex justify-between items-center text-sm font-bold text-slate-500 uppercase tracking-widest">
                         <span>Expédition</span>
                         <span class="text-slate-900">Offerte</span>
@@ -95,7 +134,8 @@
                 <div class="border-t border-slate-900 pt-6 mb-8">
                     <div class="flex justify-between items-end">
                         <span class="text-sm font-bold text-slate-900 uppercase tracking-widest">Total</span>
-                        <span class="font-black text-4xl text-slate-900 tracking-tighter">{{ number_format($total, 2) }} <span class="text-xl">DH</span></span>
+                        @php $finalTotal = max(0, $total - ($cartPromo['discount'] ?? 0)); @endphp
+                        <span class="font-black text-4xl text-slate-900 tracking-tighter">{{ number_format($finalTotal, 2) }} <span class="text-xl">DH</span></span>
                     </div>
                 </div>
 

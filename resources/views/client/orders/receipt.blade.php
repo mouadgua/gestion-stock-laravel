@@ -65,32 +65,41 @@
                 <tr class="border-b-2 border-slate-900">
                     <th class="py-4 text-left text-xs font-bold text-slate-400 uppercase tracking-widest">Désignation</th>
                     <th class="py-4 text-center text-xs font-bold text-slate-400 uppercase tracking-widest">Qté</th>
-                    <th class="py-4 text-right text-xs font-bold text-slate-400 uppercase tracking-widest">Montant</th>
+                    <th class="py-4 text-right text-xs font-bold text-slate-400 uppercase tracking-widest">Prix unitaire</th>
+                    <th class="py-4 text-right text-xs font-bold text-slate-400 uppercase tracking-widest">Total</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach($order->items as $item)
                 <tr class="border-b border-slate-200">
                     <td class="py-6">
-                        <p class="font-black text-slate-900 uppercase text-sm">{{ $item->product->nom_produit }}</p>
+                        <p class="font-black text-slate-900 uppercase text-sm">{{ $item->product->nom_produit ?? 'Produit supprimé' }}</p>
                     </td>
-                    <td class="py-6 text-center text-sm font-bold text-slate-500">
-                        {{ $item->quantite }}
-                    </td>
-                    <td class="py-6 text-right font-black text-slate-900 whitespace-nowrap text-sm">
-                        {{ number_format($item->prix_unitaire * $item->quantite, 2) }} DH
-                    </td>
+                    <td class="py-6 text-center text-sm font-bold text-slate-500">{{ $item->quantite }}</td>
+                    <td class="py-6 text-right text-sm font-bold text-slate-700 whitespace-nowrap">{{ number_format($item->prix_unitaire, 2) }} DH</td>
+                    <td class="py-6 text-right font-black text-slate-900 whitespace-nowrap text-sm">{{ number_format($item->sous_total, 2) }} DH</td>
                 </tr>
                 @endforeach
             </tbody>
         </table>
 
+        @php
+            $itemsTotal = $order->items->sum('sous_total');
+            $promoDiscount = $order->discount ?? 0;
+        @endphp
+
         <div class="flex justify-end border-t-4 border-slate-900 pt-6">
             <div class="w-full md:w-1/2">
                 <div class="flex justify-between items-center mb-2">
-                    <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">Sous-total</span>
-                    <span class="text-sm font-black text-slate-900">{{ number_format($order->total, 2) }} DH</span>
+                    <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">Sous-total articles</span>
+                    <span class="text-sm font-black text-slate-900">{{ number_format($itemsTotal, 2) }} DH</span>
                 </div>
+                @if($promoDiscount > 0)
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-xs font-bold text-emerald-600 uppercase tracking-widest">Promo {{ $order->promo_code }}</span>
+                        <span class="text-sm font-black text-emerald-600">-{{ number_format($promoDiscount, 2) }} DH</span>
+                    </div>
+                @endif
                 <div class="flex justify-between items-center mb-6 border-b border-slate-200 pb-4">
                     <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">TVA / Taxes</span>
                     <span class="text-sm font-black text-slate-900">Incluses</span>

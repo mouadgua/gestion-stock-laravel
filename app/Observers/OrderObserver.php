@@ -126,7 +126,7 @@ class OrderObserver
             foreach ($items as $item) {
                 $product = Product::lockForUpdate()->find($item['id_produit']);
                 
-                $sousTotal = $product->prix * $item['quantite'];
+                $sousTotal = $product->finalPrice * $item['quantite'];
                 
                 OrderItem::create([
                     'id_commande' => $order->id_commande,
@@ -142,8 +142,8 @@ class OrderObserver
                 $total += $sousTotal;
             }
 
-            // Update order total
-            $order->total = $total;
+            // Update order total — subtract promo discount if any
+            $order->total = max(0, $total - ($order->discount ?? 0));
             $order->save();
         });
 
@@ -176,7 +176,7 @@ class OrderObserver
 
             // Update order item
             $orderItem->quantite = $newQuantity;
-            $orderItem->sous_total = $product->prix * $newQuantity;
+            $orderItem->sous_total = $product->finalPrice * $newQuantity;
             $orderItem->save();
 
             // Recalculate order total

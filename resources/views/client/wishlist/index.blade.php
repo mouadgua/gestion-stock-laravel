@@ -21,7 +21,7 @@
             <div class="group gsap-product flex flex-col h-full relative">
                 
                 <a href="{{ route('products.show', $product->slug) }}" class="block relative overflow-hidden aspect-[4/5] bg-slate-100 mb-5">
-                    <img src="{{ $product->image ?? 'https://via.placeholder.com/600x800?text=' . urlencode($product->nom_produit) }}"
+                    <img src="{{ $product->firstImage ?? 'https://via.placeholder.com/600x800?text=' . urlencode($product->nom_produit) }}"
                          alt="{{ $product->nom_produit }}"
                          class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)]">
                     

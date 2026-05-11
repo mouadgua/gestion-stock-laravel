@@ -24,6 +24,8 @@ class Order extends Model
         'paypal_paiement_id',
         'paypal_payer_id',
         'statut_paiement',
+        'promo_code',
+        'discount',
     ];
 
     protected $casts = [

@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use Cloudinary\Cloudinary;
-use Cloudinary\Transformation\Resize;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;
 
@@ -34,10 +33,6 @@ class CloudinaryService
             $uploadOptions = array_merge([
                 'folder' => "the_vault/{$folder}",
                 'resource_type' => 'image',
-                'transformation' => [
-                    'quality' => 'auto',
-                    'fetch_format' => 'auto',
-                ],
             ], $options);
 
             $uploadedFile = $this->cloudinary->uploadApi()->upload(

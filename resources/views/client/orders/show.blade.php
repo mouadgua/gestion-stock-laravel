@@ -41,7 +41,12 @@
                     <div class="py-6 flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-200 gap-4 gsap-row">
                         <div class="flex items-center gap-6">
                             <div class="w-20 aspect-[4/5] bg-slate-100 shrink-0 overflow-hidden">
-                                <img src="{{ $item->product->image ?? 'https://via.placeholder.com/150' }}" class="w-full h-full object-cover">
+                                @php $img = $item->product->firstImage ?? null; @endphp
+                                @if($img)
+                                    <img src="{{ $img }}" alt="{{ $item->product->nom_produit }}" class="w-full h-full object-cover">
+                                @else
+                                    <div class="w-full h-full flex items-center justify-center text-slate-300"><i class="fas fa-image text-2xl"></i></div>
+                                @endif
                             </div>
                             <div>
                                 <p class="font-black text-slate-900 text-lg uppercase leading-tight mb-1">{{ $item->product->nom_produit }}</p>
@@ -49,7 +54,7 @@
                             </div>
                         </div>
                         <div class="text-left sm:text-right pl-26 sm:pl-0">
-                            <p class="font-black text-slate-900 text-xl whitespace-nowrap">{{ number_format($item->prix_unitaire * $item->quantite, 2) }} DH</p>
+                            <p class="font-black text-slate-900 text-xl whitespace-nowrap">{{ number_format($item->sous_total, 2) }} DH</p>
                         </div>
                     </div>
                 @endforeach
@@ -62,10 +67,20 @@
             <h2 class="text-xl font-black text-slate-900 uppercase tracking-tight border-b border-slate-200 pb-4 mb-6">Bilan financier</h2>
             
             <div class="space-y-4 mb-6">
+                @php
+                    $itemsTotal = $order->items->sum('sous_total');
+                    $promoDiscount = $order->discount ?? 0;
+                @endphp
                 <div class="flex justify-between items-center text-sm font-bold text-slate-500 uppercase tracking-widest">
                     <span>Sous-total</span>
-                    <span class="text-slate-900">{{ number_format($order->total, 2) }} DH</span>
+                    <span class="text-slate-900">{{ number_format($itemsTotal, 2) }} DH</span>
                 </div>
+                @if($promoDiscount > 0)
+                    <div class="flex justify-between items-center text-sm font-bold text-emerald-600 uppercase tracking-widest">
+                        <span>Promo {{ $order->promo_code }}</span>
+                        <span>-{{ number_format($promoDiscount, 2) }} DH</span>
+                    </div>
+                @endif
                 <div class="flex justify-between items-center text-sm font-bold text-slate-500 uppercase tracking-widest">
                     <span>Taxes & Frais</span>
                     <span class="text-slate-900">Inclus</span>

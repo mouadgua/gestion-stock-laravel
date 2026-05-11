@@ -88,7 +88,7 @@
                             <p class="text-xs font-bold text-slate-400 tracking-widest">{{ $order->user->email }}</p>
                         </td>
                         <td class="py-5 px-6 font-mono text-xs font-bold text-slate-500">
-                            {{ \Carbon\Carbon::parse($order->date_commande)->format('d/m/Y') }}
+                            {{ $order->created_at->format('d/m/Y H:i') }}
                         </td>
                         <td class="py-5 px-6 text-sm font-black text-slate-900">
                             {{ $order->items->count() }} <span class="text-[10px] text-slate-400 uppercase tracking-widest">art.</span>

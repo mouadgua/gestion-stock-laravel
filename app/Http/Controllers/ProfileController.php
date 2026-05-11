@@ -35,18 +35,24 @@ class ProfileController extends Controller
             'avatar' => ['nullable', 'image', 'mimes:jpeg,png,webp,gif,avif', 'max:5120'],
         ]);
 
+        // Remove avatar from validated — handled separately to avoid storing UploadedFile as string
+        unset($validated['avatar']);
+
         // Handle avatar upload
         if ($request->hasFile('avatar') && $request->file('avatar')->isValid()) {
             $result = $cloudinary->upload($request->file('avatar'), 'avatars');
             if ($result) {
-                // Delete old avatar if it exists and is from Cloudinary
+                // Delete old avatar from Cloudinary if it exists
                 if ($user->avatar && str_contains($user->avatar, 'cloudinary')) {
                     $oldPublicId = $cloudinary->getPublicIdFromUrl($user->avatar);
                     if ($oldPublicId) {
                         $cloudinary->delete($oldPublicId);
                     }
                 }
-                $validated['avatar'] = $result['url'];
+                $user->avatar = $result['url'];
+            } else {
+                return back()->withErrors(['avatar' => 'Échec de l\'upload de l\'avatar. Vérifiez les credentials Cloudinary.'])
+                    ->withInput();
             }
         }
 

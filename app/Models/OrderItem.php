@@ -26,6 +26,11 @@ class OrderItem extends Model
 
     public $timestamps = true;
 
+    public function getPrixUnitaireAttribute(): float
+    {
+        return $this->quantite > 0 ? round((float) $this->sous_total / $this->quantite, 2) : 0;
+    }
+
     public function order(): BelongsTo
     {
         return $this->belongsTo(Order::class, 'id_commande', 'id_commande');

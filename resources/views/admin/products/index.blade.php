@@ -40,8 +40,8 @@
                         <td class="py-4 px-4">
                             <div class="flex items-center gap-4">
                                 <div class="w-12 aspect-[4/5] bg-slate-100 overflow-hidden shrink-0">
-                                    <img src="{{ $product->image ? asset('storage/' . $product->image) : 'https://via.placeholder.com/40' }}" 
-                                         alt="{{ $product->nom_produit }}" 
+                                    <img src="{{ $product->firstImage ?? 'https://via.placeholder.com/40' }}"
+                                         alt="{{ $product->nom_produit }}"
                                          class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
                                 </div>
                                 <span class="font-black text-slate-900 uppercase text-sm leading-tight">{{ Str::limit($product->nom_produit, 40) }}</span>
@@ -53,7 +53,13 @@
                         </td>
                         
                         <td class="py-4 px-4 font-black text-slate-900">
-                            {{ number_format($product->prix, 2) }} DH
+                            @if($product->discount_percent > 0)
+                                <span class="line-through text-slate-400 font-bold text-xs">{{ number_format($product->prix, 2) }}</span><br>
+                                <span class="text-red-600">{{ number_format($product->finalPrice, 2) }} DH</span>
+                                <span class="ml-1 text-[10px] bg-red-100 text-red-600 font-black px-1.5 py-0.5 rounded">-{{ $product->discount_percent }}%</span>
+                            @else
+                                {{ number_format($product->prix, 2) }} DH
+                            @endif
                         </td>
                         
                         <td class="py-4 px-4 text-center">

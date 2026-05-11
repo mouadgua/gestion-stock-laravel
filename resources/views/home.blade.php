@@ -4,198 +4,361 @@
 
 @section('content')
 
-<div class="relative w-full h-[80vh] min-h-[600px] bg-slate-900 rounded-[2.5rem] overflow-hidden flex flex-col justify-end p-8 md:p-16 mb-20 group">
-    <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop" 
-         alt="The Vault Hero" 
-         class="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-overlay gsap-parallax scale-105">
+<div class="relative w-full h-[85vh] min-h-[700px] bg-slate-950 flex flex-col justify-between overflow-hidden group border-b-4 border-emerald-400">
+    <div class="absolute inset-0 z-0">
+        <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop" 
+             alt="Hero The Vault" 
+             class="w-full h-full object-cover opacity-50 gsap-hero-bg scale-110">
+    </div>
     
-    <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent"></div>
+    <div class="absolute inset-0 z-10 opacity-20 pointer-events-none mix-blend-overlay" style="background-image: url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E');"></div>
 
-    <div class="relative z-10 w-full max-w-5xl mx-auto flex flex-col items-center text-center">
-        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/20 bg-white/5 backdrop-blur-md text-white/80 text-xs font-bold uppercase tracking-widest mb-8 gsap-hero-el">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-            Nouveautés exclusives
+    <div class="relative z-20 w-full px-4 lg:px-8 pt-12 flex justify-between items-start">
+        <div class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-400 text-slate-950 text-[10px] font-black uppercase tracking-widest gsap-fade-up shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]">
+            <span class="w-2 h-2 bg-slate-950 animate-pulse"></span> Édition Limitée 2026
         </div>
-        
-        <h1 class="text-6xl md:text-8xl lg:text-9xl font-black text-white mb-8 tracking-tighter leading-none gsap-hero-el">
-            THE VAULT.
+        <div class="text-right text-white/50 text-[10px] font-bold uppercase tracking-widest gsap-fade-up">
+            <p>Collection Printemps</p>
+            <p>2026.01</p>
+        </div>
+    </div>
+
+    <div class="relative z-20 w-full px-4 lg:px-8 pb-16 pointer-events-none">
+        <h1 class="text-[15vw] leading-[0.8] font-black text-white tracking-tighter uppercase mix-blend-difference overflow-hidden">
+            <span class="block gsap-title-reveal">L'ART DE</span>
+            <span class="block text-white gsap-title-reveal">L'EXCELLENCE</span>
         </h1>
         
-        <p class="text-lg md:text-2xl text-white/70 font-medium mb-12 max-w-2xl mx-auto gsap-hero-el">
-            L'excellence à l'état pur. Découvrez notre sélection d'équipements premium.
-        </p>
-
-        <div class="w-full max-w-3xl mx-auto gsap-hero-el">
-            <form action="{{ route('products.index') }}" method="GET" class="relative group/form">
-                <div class="flex items-center bg-white/10 backdrop-blur-xl rounded-2xl overflow-hidden border border-white/20 focus-within:border-white transition-all duration-500 hover:bg-white/20">
-                    <div class="pl-6 pr-4">
-                        <i class="fas fa-search text-white/50 text-xl group-focus-within/form:text-white transition-colors"></i>
-                    </div>
-                    <input type="text" name="search" placeholder="Rechercher un objet..." value="{{ request('search') }}"
-                        class="w-full py-5 md:py-6 text-white placeholder-white/50 bg-transparent focus:outline-none text-lg md:text-xl font-bold">
-                    <button type="submit" class="px-8 py-5 md:py-6 bg-white text-slate-900 font-black uppercase tracking-widest hover:bg-slate-200 transition-colors hidden sm:block">
-                        Explorer
-                    </button>
-                </div>
+        <div class="mt-12 max-w-xl pointer-events-auto gsap-fade-up">
+            <form action="{{ route('products.index') }}" method="GET" class="relative group/form flex">
+                <input type="text" name="search" placeholder="RECHERCHER DANS LE COFFRE..." value="{{ request('search') }}"
+                    class="w-full py-5 px-6 bg-white text-slate-950 placeholder-slate-400 font-black uppercase tracking-widest text-sm focus:outline-none focus:ring-4 focus:ring-emerald-400/50 transition-all border-none shadow-[8px_8px_0px_0px_rgba(52,211,153,1)]">
+                <button type="submit" class="px-8 bg-emerald-400 text-slate-950 font-black uppercase tracking-widest hover:bg-white transition-colors flex items-center justify-center">
+                    <i class="fas fa-arrow-right"></i>
+                </button>
             </form>
-            <div class="flex flex-wrap justify-center gap-4 mt-6 text-xs font-bold tracking-widest uppercase">
-                <span class="text-white/40">Tendances :</span>
-                <a href="{{ route('products.index') }}?sort=bestsellers" class="text-white hover:text-slate-300 transition-colors">Meilleures ventes</a>
-                <span class="text-white/20">/</span>
-                <a href="{{ route('products.index') }}?sort=newest" class="text-white hover:text-slate-300 transition-colors">Derniers ajouts</a>
-            </div>
         </div>
     </div>
 </div>
 
-<div class="grid grid-cols-2 md:grid-cols-4 border-y border-slate-200 py-10 mb-24 gsap-fade-up">
-    <div class="text-center px-4 border-r border-slate-100 last:border-0 md:last:border-r-0">
-        <p class="text-4xl md:text-5xl font-black text-slate-900 tracking-tighter mb-1">{{ $recentProducts->count() }}+</p>
-        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Objets en stock</p>
-    </div>
-    <div class="text-center px-4 border-r-0 md:border-r border-slate-100">
-        <p class="text-4xl md:text-5xl font-black text-slate-900 tracking-tighter mb-1">24h</p>
-        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Expédition</p>
-    </div>
-    <div class="text-center px-4 border-r border-slate-100 mt-8 md:mt-0 pt-8 md:pt-0 border-t md:border-t-0">
-        <p class="text-4xl md:text-5xl font-black text-slate-900 tracking-tighter mb-1">100%</p>
-        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Sécurisé</p>
-    </div>
-    <div class="text-center px-4 mt-8 md:mt-0 pt-8 md:pt-0 border-t md:border-t-0 border-slate-100">
-        <p class="text-4xl md:text-5xl font-black text-slate-900 tracking-tighter mb-1">7/7</p>
-        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Conciergerie</p>
+<div class="w-full bg-emerald-400 border-b-4 border-slate-900 py-4 overflow-hidden flex items-center">
+    <div class="gsap-marquee whitespace-nowrap flex items-center gap-8 text-slate-950 font-black uppercase tracking-widest text-xl md:text-3xl">
+        <span>THE VAULT</span> <i class="fas fa-vault text-sm"></i>
+        <span>SÉCURITÉ PHYSIQUE</span> <i class="fas fa-shield-alt text-sm"></i>
+        <span>HORLOGERIE EXCLUSIVE</span> <i class="fas fa-clock text-sm"></i>
     </div>
 </div>
 
-<div class="mb-24">
-    <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6 gsap-fade-up">
-        <div>
-            <h2 class="text-5xl md:text-7xl font-black text-slate-900 tracking-tighter leading-none">NOUVELLES<br>ARRIVÉES.</h2>
+<div class="py-24 border-b-4 border-slate-900 bg-slate-50">
+    <div class="px-4 lg:px-8 mb-12 flex items-end justify-between gsap-fade-up">
+        <h2 class="text-4xl md:text-6xl font-black text-slate-900 tracking-tighter uppercase leading-none">
+            Dernières<br>Acquisitions.
+        </h2>
+        <div class="flex gap-4">
+            <button class="w-12 h-12 border-2 border-slate-900 flex items-center justify-center hover:bg-slate-900 hover:text-white transition-colors" id="scroll-left">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <button class="w-12 h-12 bg-slate-900 text-white flex items-center justify-center hover:bg-emerald-400 hover:text-slate-950 transition-colors shadow-[4px_4px_0px_0px_rgba(52,211,153,1)]" id="scroll-right">
+                <i class="fas fa-arrow-right"></i>
+            </button>
         </div>
-        <a href="{{ route('products.index') }}" class="inline-flex items-center gap-3 text-sm font-bold text-slate-900 uppercase tracking-widest hover:text-slate-500 transition-colors group">
-            Voir la collection complète 
-            <span class="w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center group-hover:translate-x-2 transition-transform">
-                <i class="fas fa-arrow-right text-xs"></i>
-            </span>
-        </a>
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-12">
+    <div class="flex gap-6 overflow-x-auto snap-x snap-mandatory hide-scrollbar px-4 lg:px-8 pb-8" id="product-carousel">
         @forelse($recentProducts as $product)
-            <div class="group cursor-pointer gsap-product">
-                <a href="{{ route('products.show', $product->slug) }}" class="block relative overflow-hidden aspect-[4/5] bg-slate-100 mb-5">
-                    <img src="{{ $product->image ? asset('storage/' . $product->image) : 'https://via.placeholder.com/600x800?text=' . urlencode($product->nom_produit) }}"
+            <div class="snap-start shrink-0 w-[85vw] sm:w-[400px] group cursor-pointer gsap-carousel-item relative">
+                <div class="absolute top-4 right-4 z-20 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col gap-2">
+                    @auth
+                    <form action="{{ route('client.wishlist.add', $product) }}" method="POST">
+                        @csrf
+                        <button type="submit" class="w-10 h-10 bg-white text-slate-900 flex items-center justify-center hover:text-rose-500 transition-colors shadow-[4px_4px_0px_0px_rgba(239,68,68,1)]">
+                            <i class="fas fa-heart"></i>
+                        </button>
+                    </form>
+                    @endauth
+                </div>
+
+                <a href="{{ route('products.show', $product->slug) }}" class="block relative overflow-hidden aspect-[4/5] bg-slate-200 border-2 border-slate-900 hover:border-emerald-400 transition-colors">
+                    <img src="{{ $product->firstImage ?? 'https://via.placeholder.com/600x800?text=' . urlencode($product->nom_produit) }}"
                          alt="{{ $product->nom_produit }}"
-                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)]">
+                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 ease-out">
                     
                     @if(!$product->isAvailable())
-                        <div class="absolute inset-0 bg-slate-900/20 backdrop-blur-[2px] flex items-center justify-center">
-                            <span class="bg-slate-900 text-white px-6 py-3 text-xs font-bold uppercase tracking-widest">Épuisé</span>
+                        <div class="absolute top-4 left-4 bg-rose-500 text-white px-4 py-2 text-[10px] font-black uppercase tracking-widest shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]">
+                            Rupture
                         </div>
                     @endif
-                    
-                    <div class="absolute inset-x-0 bottom-0 p-4 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 bg-gradient-to-t from-black/50 to-transparent flex justify-center">
-                        <span class="bg-white text-slate-900 px-6 py-3 font-bold text-xs uppercase tracking-widest hover:bg-slate-900 hover:text-white transition-colors">
-                            Voir les détails
-                        </span>
-                    </div>
                 </a>
                 
-                <div class="flex justify-between items-start gap-4">
+                <div class="pt-6 border-b-2 border-transparent group-hover:border-slate-900 transition-colors pb-4 flex justify-between items-start gap-4">
                     <div>
-                        <h3 class="font-extrabold text-slate-900 text-lg leading-tight mb-1 group-hover:text-slate-600 transition-colors line-clamp-1">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{{ $product->categorie->nom_categorie ?? 'Dossier' }}</p>
+                        <h3 class="font-black text-slate-900 text-xl uppercase tracking-tight leading-tight line-clamp-1 group-hover:text-emerald-600 transition-colors">
                             {{ $product->nom_produit }}
                         </h3>
-                        <p class="text-sm font-medium text-slate-500 line-clamp-1">{{ Str::limit($product->description, 40) }}</p>
                     </div>
-                    <span class="font-black text-slate-900 text-lg whitespace-nowrap">{{ number_format($product->prix, 2) }} DH</span>
+                    <span class="font-black text-slate-900 text-xl whitespace-nowrap">{{ number_format($product->prix, 0) }}<span class="text-sm ml-1">DH</span></span>
                 </div>
             </div>
         @empty
-            <div class="col-span-full py-32 text-center border border-slate-200 border-dashed rounded-[2rem]">
-                <h3 class="text-3xl font-black text-slate-900 mb-2">Le coffre est vide.</h3>
-                <p class="text-slate-500 font-medium">Revenez bientôt pour découvrir nos nouveautés.</p>
+            <div class="w-full py-20 text-center border-4 border-slate-900 border-dashed">
+                <p class="text-xl font-black uppercase tracking-widest">Le coffre est actuellement vide.</p>
             </div>
         @endforelse
     </div>
 </div>
 
-<div class="bg-slate-900 rounded-[2.5rem] p-10 md:p-24 text-center relative overflow-hidden gsap-fade-up">
-    <div class="absolute top-0 right-0 w-[800px] h-[800px] bg-white opacity-5 rounded-full blur-3xl transform translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
-    
-    <div class="relative z-10">
-        <h2 class="text-4xl md:text-7xl font-black text-white mb-6 tracking-tighter leading-tight">
-            ACCÉDEZ À<br>L'EXCELLENCE.
+<div class="relative w-full h-screen min-h-[800px] bg-slate-900 border-b-4 border-slate-900 overflow-hidden" id="interactive-lookbook">
+    <div class="absolute inset-0 transition-opacity duration-700 ease-in-out opacity-40 scale-105" id="lookbook-bg">
+        <img src="https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2564&auto=format&fit=crop" class="w-full h-full object-cover">
+    </div>
+
+    <div class="relative z-10 w-full h-full flex flex-col justify-center px-4 lg:px-16">
+        <p class="text-emerald-400 font-black uppercase tracking-widest text-sm mb-12 gsap-fade-up">Parcourir les catégories</p>
+        
+        <ul class="flex flex-col gap-4 md:gap-8">
+            <li class="lookbook-item group" data-bg="https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2564&auto=format&fit=crop">
+                <a href="{{ route('products.index') }}?category=equipement-tactique" class="text-5xl md:text-8xl font-black text-white/30 uppercase tracking-tighter hover:text-white transition-colors duration-300 flex items-center gap-6 group">
+                    <span class="text-xl md:text-3xl opacity-0 group-hover:opacity-100 text-emerald-400 transition-opacity -translate-x-10 group-hover:translate-x-0 duration-300 font-mono">01</span>
+                    ÉQUIPEMENT TACTIQUE
+                    <i class="fas fa-arrow-right text-3xl md:text-6xl text-emerald-400 opacity-0 group-hover:opacity-100 transition-all group-hover:translate-x-3"></i>
+                </a>
+            </li>
+            
+            <li class="lookbook-item group" data-bg="https://images.unsplash.com/photo-1595341888016-a392ef81b7de?q=80&w=2564&auto=format&fit=crop">
+                <a href="{{ route('products.index') }}?category=securite-physique" class="text-5xl md:text-8xl font-black text-white/30 uppercase tracking-tighter hover:text-white transition-colors duration-300 flex items-center gap-6 group">
+                    <span class="text-xl md:text-3xl opacity-0 group-hover:opacity-100 text-emerald-400 transition-opacity -translate-x-10 group-hover:translate-x-0 duration-300 font-mono">02</span>
+                    SÉCURITÉ PHYSIQUE
+                    <i class="fas fa-arrow-right text-3xl md:text-6xl text-emerald-400 opacity-0 group-hover:opacity-100 transition-all group-hover:translate-x-3"></i>
+                </a>
+            </li>
+            
+            <li class="lookbook-item group" data-bg="https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?q=80&w=2564&auto=format&fit=crop">
+                <a href="{{ route('products.index') }}?category=horlogerie-dexception" class="text-5xl md:text-8xl font-black text-white/30 uppercase tracking-tighter hover:text-white transition-colors duration-300 flex items-center gap-6 group">
+                    <span class="text-xl md:text-3xl opacity-0 group-hover:opacity-100 text-emerald-400 transition-opacity -translate-x-10 group-hover:translate-x-0 duration-300 font-mono">03</span>
+                    HORLOGERIE D'EXCEPTION
+                    <i class="fas fa-arrow-right text-3xl md:text-6xl text-emerald-400 opacity-0 group-hover:opacity-100 transition-all group-hover:translate-x-3"></i>
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<div class="py-24 bg-white px-4 lg:px-8 border-b-4 border-slate-900">
+    <div class="mb-16 text-center gsap-fade-up">
+        <h2 class="text-4xl md:text-6xl font-black text-slate-900 tracking-tighter uppercase leading-none mb-4">
+            Le Choix de<br>L'Élite.
         </h2>
-        <p class="text-lg text-white/60 font-medium mb-10 max-w-xl mx-auto">
-            Rejoignez The Vault. Créez votre compte pour accéder à notre conciergerie et à nos offres privées.
-        </p>
+        <p class="text-slate-500 font-bold uppercase tracking-widest text-xs border-t border-slate-200 pt-4 inline-block">Ce que nos membres disent de The Vault</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
+        <div class="border-4 border-slate-900 p-8 flex flex-col justify-between gsap-review hover:-translate-y-2 hover:shadow-[12px_12px_0px_0px_rgba(52,211,153,1)] transition-all duration-300 bg-white">
+            <div>
+                <i class="fas fa-quote-left text-4xl text-emerald-400 mb-6"></i>
+                <p class="text-xl font-bold text-slate-900 leading-tight uppercase mb-12">
+                    "Une sélection pointue, introuvable ailleurs au Maroc. Le service de conciergerie tactique est irréprochable."
+                </p>
+            </div>
+            <div class="flex items-center gap-4 border-t-4 border-slate-900 pt-6 mt-auto">
+                <div class="w-14 h-14 bg-slate-900 text-white flex items-center justify-center font-black text-2xl">Y.</div>
+                <div>
+                    <p class="font-black text-slate-900 uppercase text-lg">YOUSSEF E.</p>
+                    <p class="text-[10px] text-slate-400 font-bold tracking-widest uppercase">Membre vérifié #A891</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="border-4 border-slate-900 p-8 flex flex-col justify-between gsap-review hover:-translate-y-2 hover:shadow-[12px_12px_0px_0px_rgba(52,211,153,1)] transition-all duration-300 bg-slate-950 text-white shadow-[8px_8px_0px_0px_rgba(255,255,255,1)]">
+            <div>
+                <i class="fas fa-quote-left text-4xl text-emerald-400 mb-6"></i>
+                <p class="text-xl font-bold leading-tight uppercase mb-12">
+                    "L'authentification de ma montre a été gérée de manière experte. The Vault porte bien son nom, mon investissement est en sécurité."
+                </p>
+            </div>
+            <div class="flex items-center gap-4 border-t-4 border-white pt-6 mt-auto">
+                <div class="w-14 h-14 bg-emerald-400 text-slate-950 flex items-center justify-center font-black text-2xl">A.</div>
+                <div>
+                    <p class="font-black uppercase text-lg">AMINE B.</p>
+                    <p class="text-[10px] text-slate-400 font-bold tracking-widest uppercase">Membre Premium #C112</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="border-4 border-slate-900 p-8 flex flex-col justify-between gsap-review hover:-translate-y-2 hover:shadow-[12px_12px_0px_0px_rgba(52,211,153,1)] transition-all duration-300 bg-white">
+            <div>
+                <i class="fas fa-quote-left text-4xl text-emerald-400 mb-6"></i>
+                <p class="text-xl font-bold text-slate-900 leading-tight uppercase mb-12">
+                    "Le packaging pour l'équipement sécurisé est discret et haut de gamme. Une expérience d'achat unique au Maroc."
+                </p>
+            </div>
+            <div class="flex items-center gap-4 border-t-4 border-slate-900 pt-6 mt-auto">
+                <div class="w-14 h-14 bg-slate-900 text-white flex items-center justify-center font-black text-2xl">S.</div>
+                <div>
+                    <p class="font-black text-slate-900 uppercase text-lg">SARAH K.</p>
+                    <p class="text-[10px] text-slate-400 font-bold tracking-widest uppercase">Acheteuse vérifiée #B733</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="bg-emerald-400 p-10 md:p-24 text-center relative overflow-hidden group">
+    <div class="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none overflow-hidden">
+        <span class="text-[30vw] font-black text-slate-900 leading-none whitespace-nowrap gsap-marquee-cta">THE VAULT THE VAULT THE VAULT</span>
+    </div>
+    
+    <div class="relative z-10 gsap-fade-up">
+        <h2 class="text-5xl md:text-8xl font-black text-slate-950 mb-8 tracking-tighter uppercase leading-none">
+            REJOIGNEZ<br>LE CERCLE.
+        </h2>
         
         @auth
-            <a href="{{ route('products.index') }}" class="inline-block bg-white text-slate-900 font-black uppercase tracking-widest px-10 py-5 hover:bg-slate-200 transition-all hover:scale-105 duration-300">
-                Ouvrir le coffre
+            <a href="{{ route('products.index') }}" class="inline-flex items-center gap-4 bg-slate-950 text-emerald-400 font-black uppercase tracking-widest px-12 py-6 hover:bg-white hover:text-slate-950 transition-colors duration-300 text-sm md:text-base shadow-[8px_8px_0px_0px_rgba(255,255,255,1)]">
+                Ouvrir le coffre <i class="fas fa-arrow-right"></i>
             </a>
         @else
-            <a href="{{ route('register') }}" class="inline-block bg-white text-slate-900 font-black uppercase tracking-widest px-10 py-5 hover:bg-slate-200 transition-all hover:scale-105 duration-300">
-                Devenir Membre
+            <a href="{{ route('register') }}" class="inline-flex items-center gap-4 bg-slate-950 text-emerald-400 font-black uppercase tracking-widest px-12 py-6 hover:bg-white hover:text-slate-950 transition-colors duration-300 text-sm md:text-base shadow-[8px_8px_0px_0px_rgba(255,255,255,1)]">
+                Devenir Membre <i class="fas fa-arrow-right"></i>
             </a>
         @endauth
     </div>
 </div>
 
+<style>
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+</style>
+
 @push('scripts')
 <script>
     document.addEventListener("DOMContentLoaded", () => {
-        // Animation du texte dans le Hero (Stagger)
-        gsap.fromTo(".gsap-hero-el", 
-            { y: 50, opacity: 0 }, 
-            { y: 0, opacity: 1, duration: 1, stagger: 0.15, ease: "power4.out", delay: 0.2 }
+        // Enregistrement du plugin ScrollTrigger
+        gsap.registerPlugin(ScrollTrigger);
+
+        // 1. Hero Animations
+        // Révélation du titre lettre par lettre
+        gsap.fromTo(".gsap-title-reveal", 
+            { y: "100%", opacity: 0 }, 
+            { y: "0%", opacity: 1, duration: 1.2, stagger: 0.2, ease: "power4.out", delay: 0.2 }
         );
 
-        // Effet Parallax doux sur l'image du Hero au scroll
-        gsap.to(".gsap-parallax", {
-            yPercent: 20,
+        // Parallax sur l'image de fond du hero
+        gsap.to(".gsap-hero-bg", {
+            yPercent: 30,
             ease: "none",
             scrollTrigger: {
-                trigger: ".gsap-parallax",
+                trigger: "#global-nav", // Se déclenche quand on commence à scroller
                 start: "top top",
                 end: "bottom top",
                 scrub: true
             }
         });
 
-        // Apparition générique au scroll pour les sections
-        gsap.utils.toArray('.gsap-fade-up').forEach(section => {
-            gsap.fromTo(section,
-                { y: 60, opacity: 0 },
-                {
-                    scrollTrigger: {
-                        trigger: section,
-                        start: "top 85%",
-                    },
-                    y: 0,
-                    opacity: 1,
-                    duration: 1,
-                    ease: "power3.out"
-                }
-            );
+        // 2. Marquee Infini (GSAP pour une fluidité parfaite)
+        // Dupliquer le contenu pour un scroll sans fin
+        const marqueeContent = document.querySelector('.gsap-marquee').innerHTML;
+        document.querySelector('.gsap-marquee').innerHTML = marqueeContent + marqueeContent;
+        
+        gsap.to(".gsap-marquee", {
+            xPercent: -50, // Décale de la moitié (puisqu'on l'a dupliqué)
+            ease: "none",
+            duration: 25, // Vitesse
+            repeat: -1
         });
 
-        // Stagger sur la grille de produits (Lookbook)
-        gsap.fromTo(".gsap-product",
-            { y: 50, opacity: 0 },
+        // 3. Carousel Scroll Logic (Boutons Gauche/Droite)
+        const carousel = document.getElementById('product-carousel');
+        const btnLeft = document.getElementById('scroll-left');
+        const btnRight = document.getElementById('scroll-right');
+
+        if (carousel && btnLeft && btnRight) {
+            const scrollAmount = 400; // Largeur d'une carte environ
+            btnLeft.addEventListener('click', () => {
+                carousel.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+            });
+            btnRight.addEventListener('click', () => {
+                carousel.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+            });
+        }
+
+        // Animation d'entrée des cartes du carrousel au scroll
+        gsap.fromTo(".gsap-carousel-item",
+            { x: 100, opacity: 0 },
             {
                 scrollTrigger: {
-                    trigger: ".gsap-product",
+                    trigger: "#product-carousel",
                     start: "top 80%",
                 },
-                y: 0,
+                x: 0,
                 opacity: 1,
                 duration: 0.8,
                 stagger: 0.1,
                 ease: "power3.out"
             }
         );
+
+        // 4. Lookbook Interactif (Hover Reveal)
+        const lookbookItems = document.querySelectorAll('.lookbook-item');
+        const lookbookBg = document.querySelector('#lookbook-bg img');
+
+        lookbookItems.forEach(item => {
+            item.addEventListener('mouseenter', function() {
+                const newBg = this.getAttribute('data-bg');
+                
+                // GSAP pour un fondu enchaîné élégant
+                gsap.to(lookbookBg, { 
+                    opacity: 0, 
+                    duration: 0.3, 
+                    onComplete: () => {
+                        lookbookBg.src = newBg;
+                        gsap.to(lookbookBg, { opacity: 0.4, duration: 0.5 }); // Revenir à l'opacité par défaut
+                    }
+                });
+            });
+        });
+
+        // 5. Apparition Brutaliste des Avis Clients
+        gsap.fromTo(".gsap-review",
+            { y: 50, opacity: 0, rotation: -2 },
+            {
+                scrollTrigger: {
+                    trigger: ".gsap-review",
+                    start: "top 85%",
+                },
+                y: 0,
+                opacity: 1,
+                rotation: 0,
+                duration: 0.8,
+                stagger: 0.2,
+                ease: "back.out(1.5)"
+            }
+        );
+
+        // 6. Marquee discret dans le CTA final
+        gsap.to(".gsap-marquee-cta", {
+            xPercent: -50,
+            ease: "none",
+            duration: 15,
+            repeat: -1
+        });
+
+        // Utils générique pour les éléments qui montent au scroll
+        gsap.utils.toArray('.gsap-fade-up').forEach(el => {
+            gsap.fromTo(el,
+                { y: 40, opacity: 0 },
+                {
+                    scrollTrigger: {
+                        trigger: el,
+                        start: "top 90%"
+                    },
+                    y: 0,
+                    opacity: 1,
+                    duration: 0.8,
+                    ease: "power3.out"
+                }
+            );
+        });
     });
 </script>
 @endpush
